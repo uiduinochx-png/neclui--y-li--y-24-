@@ -35,37 +35,24 @@ jobs:
             nmap ffuf unzip wget \
             && sudo rm -rf /var/lib/apt/lists/*
           
-          # ============================================
-          # CÀI NUCLEI - CÁCH ĐƠN GIẢN NHẤT
-          # ============================================
           echo "📥 ĐANG TẢI NUCLEI..."
-          
-          # Cách 1: Dùng Go (chắc chắn nhất)
           sudo snap install go --classic
           go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
           sudo cp ~/go/bin/nuclei /usr/local/bin/
-          
-          # Kiểm tra cài đặt
           nuclei -version || echo "⚠️ Lỗi cài nuclei"
           
-          # ============================================
-          # CÀI PYTHON PACKAGES
-          # ============================================
           pip3 install -q requests beautifulsoup4 lxml
           
-          # ============================================
-          # CẬP NHẬT TEMPLATES
-          # ============================================
           nuclei -update-templates -silent
           nuclei -templates-version
           
           mkdir -p /tmp/ultimate-templates
           
-          echo "📥 ĐANG TẢI TEMPLATE BỔ SUNG..."
-          git clone --depth 1 -q https://github.com/geeknik/nuclei-templates.git /tmp/ultimate-templates/geeknik 2>/dev/null || echo "⚠️ Không clone được geeknik"
-          git clone --depth 1 -q https://github.com/notnotnotveg/nuclei-templates.git /tmp/ultimate-templates/extra 2>/dev/null || echo "⚠️ Không clone được extra"
-          git clone --depth 1 -q https://github.com/random-robbie/nuclei-templates.git /tmp/ultimate-templates/random 2>/dev/null || echo "⚠️ Không clone được random"
-          git clone --depth 1 -q https://github.com/projectdiscovery/nuclei-templates.git /tmp/ultimate-templates/official 2>/dev/null || echo "⚠️ Không clone được official"
+          echo "📥 ĐANG TẢI TEMPLATE..."
+          git clone --depth 1 -q https://github.com/geeknik/nuclei-templates.git /tmp/ultimate-templates/geeknik 2>/dev/null || true
+          git clone --depth 1 -q https://github.com/notnotnotveg/nuclei-templates.git /tmp/ultimate-templates/extra 2>/dev/null || true
+          git clone --depth 1 -q https://github.com/random-robbie/nuclei-templates.git /tmp/ultimate-templates/random 2>/dev/null || true
+          git clone --depth 1 -q https://github.com/projectdiscovery/nuclei-templates.git /tmp/ultimate-templates/official 2>/dev/null || true
           
           echo "✅ CÀI ĐẶT HOÀN TẤT!"
 
@@ -98,64 +85,51 @@ jobs:
           print(f"📊 WEB GIÁ TRỊ CAO: {len(history['high_value'])}")
           print("="*70)
           
-          # ============================================
-          # DANH SÁCH WEB GIÁ TRỊ CAO - LUÔN CÓ
-          # ============================================
           high_value_websites = [
-              ('wordpress.com', 'CRITICAL - SQLi/RCE plugin'),
-              ('joomla.org', 'CRITICAL - SQLi/RCE extension'),
-              ('drupal.org', 'CRITICAL - RCE module'),
+              ('wordpress.com', 'CRITICAL - SQLi/RCE'),
+              ('joomla.org', 'CRITICAL - SQLi/RCE'),
+              ('drupal.org', 'CRITICAL - RCE'),
               ('magento.com', 'CRITICAL - SQLi/RCE'),
-              ('shopify.com', 'CRITICAL - RCE theme'),
-              ('laravel.com', 'CRITICAL - RCE core'),
-              ('djangoproject.com', 'CRITICAL - RCE core'),
-              ('rubyonrails.org', 'CRITICAL - RCE core'),
-              ('spring.io', 'CRITICAL - RCE core'),
-              ('stripe.com', 'CRITICAL - Payment bypass'),
-              ('paypal.com', 'CRITICAL - Payment logic'),
-              ('coinbase.com', 'CRITICAL - Crypto theft'),
-              ('binance.com', 'CRITICAL - Withdraw bypass'),
-              ('uniswap.org', 'CRITICAL - Smart contract'),
+              ('shopify.com', 'CRITICAL - RCE'),
+              ('laravel.com', 'CRITICAL - RCE'),
+              ('djangoproject.com', 'CRITICAL - RCE'),
+              ('rubyonrails.org', 'CRITICAL - RCE'),
+              ('spring.io', 'CRITICAL - RCE'),
+              ('stripe.com', 'CRITICAL - Payment'),
+              ('paypal.com', 'CRITICAL - Payment'),
+              ('coinbase.com', 'CRITICAL - Crypto'),
+              ('binance.com', 'CRITICAL - Crypto'),
+              ('uniswap.org', 'CRITICAL - Smart Contract'),
               ('chain.link', 'CRITICAL - Oracle'),
-              ('aave.com', 'CRITICAL - Lending logic'),
-              ('github.com', 'CRITICAL - API bypass'),
-              ('gitlab.com', 'CRITICAL - CI/CD escape'),
-              ('aws.amazon.com', 'CRITICAL - Cloud escape'),
-              ('azure.microsoft.com', 'CRITICAL - Cloud escape'),
-              ('cloud.google.com', 'CRITICAL - Cloud escape'),
-              ('amazon.com', 'CRITICAL - Payment bypass'),
-              ('booking.com', 'CRITICAL - Booking bypass'),
-              ('airbnb.com', 'CRITICAL - Reservation logic'),
-              ('reddit.com', 'CRITICAL - API logic'),
-              ('discord.com', 'CRITICAL - API bypass'),
-              ('telegram.org', 'CRITICAL - Bot takeover'),
-              ('compound.finance', 'CRITICAL - Lending logic'),
-              ('gmx.io', 'CRITICAL - Trading logic'),
-              ('morpho.org', 'CRITICAL - Lending logic'),
-              ('injective.com', 'CRITICAL - Trading logic'),
-              ('sky.money', 'CRITICAL - Stablecoin logic'),
+              ('aave.com', 'CRITICAL - Lending'),
+              ('github.com', 'CRITICAL - API'),
+              ('gitlab.com', 'CRITICAL - CI/CD'),
+              ('aws.amazon.com', 'CRITICAL - Cloud'),
+              ('azure.microsoft.com', 'CRITICAL - Cloud'),
+              ('cloud.google.com', 'CRITICAL - Cloud'),
+              ('amazon.com', 'CRITICAL - Payment'),
+              ('booking.com', 'CRITICAL - Booking'),
+              ('airbnb.com', 'CRITICAL - Reservation'),
+              ('reddit.com', 'CRITICAL - API'),
+              ('discord.com', 'CRITICAL - API'),
+              ('telegram.org', 'CRITICAL - Bot'),
+              ('compound.finance', 'CRITICAL - Lending'),
+              ('gmx.io', 'CRITICAL - Trading'),
+              ('morpho.org', 'CRITICAL - Lending'),
+              ('injective.com', 'CRITICAL - Trading'),
+              ('sky.money', 'CRITICAL - Stablecoin'),
               ('layerzero.com', 'CRITICAL - Cross-chain'),
               ('wormhole.com', 'CRITICAL - Cross-chain'),
-              ('aptosfoundation.org', 'CRITICAL - Blockchain'),
-              ('near.org', 'CRITICAL - Blockchain'),
           ]
           
           high_value_domains = [d for d, _ in high_value_websites]
           for domain, desc in high_value_websites:
               if domain not in seen:
                   seen.add(domain)
-                  all_targets.append({
-                      'domain': domain,
-                      'source': desc,
-                      'type': 'HighValue',
-                      'priority': 1
-                  })
+                  all_targets.append({'domain': domain, 'source': desc, 'type': 'HighValue', 'priority': 1})
                   if domain not in history['high_value']:
                       history['high_value'].append(domain)
           
-          # ============================================
-          # LẤY TỪ HACKERONE
-          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ HACKERONE...")
           try:
               r = requests.get('https://hackerone.com/programs/search?query=type:public', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -173,19 +147,11 @@ jobs:
                               if '.' in domain and len(domain) > 5 and not domain.startswith('http'):
                                   if domain not in seen and len(domain) < 50:
                                       seen.add(domain)
-                                      all_targets.append({
-                                          'domain': domain,
-                                          'source': 'HackerOne',
-                                          'type': 'BugBounty',
-                                          'priority': 3
-                                      })
+                                      all_targets.append({'domain': domain, 'source': 'HackerOne', 'type': 'BugBounty', 'priority': 3})
                                       count += 1
           except Exception as e:
               print(f"⚠️ Lỗi HackerOne: {e}")
           
-          # ============================================
-          # LẤY TỪ BUGCROWD
-          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ BUGCROWD...")
           try:
               r = requests.get('https://bugcrowd.com/programs', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -201,19 +167,11 @@ jobs:
                           if domain and domain not in seen and len(domain) < 50:
                               if not any(x in domain for x in ['bugcrowd', 'hackerone', 'immunefi']):
                                   seen.add(domain)
-                                  all_targets.append({
-                                      'domain': domain,
-                                      'source': 'Bugcrowd',
-                                      'type': 'BugBounty',
-                                      'priority': 3
-                                  })
+                                  all_targets.append({'domain': domain, 'source': 'Bugcrowd', 'type': 'BugBounty', 'priority': 3})
                                   count += 1
           except Exception as e:
               print(f"⚠️ Lỗi Bugcrowd: {e}")
           
-          # ============================================
-          # LẤY TỪ IMMUNEFI
-          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ IMMUNEFI...")
           try:
               r = requests.get('https://immunefi.com/explore/', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -231,19 +189,11 @@ jobs:
                               if '.' in domain and len(domain) > 5:
                                   if domain not in seen:
                                       seen.add(domain)
-                                      all_targets.append({
-                                          'domain': domain,
-                                          'source': 'Immunefi',
-                                          'type': 'Web3',
-                                          'priority': 2
-                                      })
+                                      all_targets.append({'domain': domain, 'source': 'Immunefi', 'type': 'Web3', 'priority': 2})
                                       count += 1
           except Exception as e:
               print(f"⚠️ Lỗi Immunefi: {e}")
           
-          # ============================================
-          # CHỌN 20 WEB
-          # ============================================
           print("\n👑 CHỌN 20 WEB NHIỀU LỖI NHẤT...")
           
           priority_1 = [t for t in all_targets if t['priority'] == 1]
@@ -347,7 +297,6 @@ jobs:
             -max-redirects 5 \
             -follow-redirects \
             -scan-all-ips \
-            -subdomain \
             -pt http,https,dns,network,tcp,ssl,whois \
             -tags cve,kev,osint,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,gcp,cloud,apache,tomcat,nginx,iis,spring,laravel,django,rails,react,angular,vue,graphql,rest,soap,webcache,webmin \
             -exclude-tags "miscellaneous,takeover,panel" \
