@@ -89,60 +89,60 @@ jobs:
           # DANH SÁCH WEB GIÁ TRỊ CAO
           # ============================================
           high_value_websites = [
-              ('wordpress.com', 'CRITICAL - SQLi/RCE plugin'),
-              ('joomla.org', 'CRITICAL - SQLi/RCE extension'),
-              ('drupal.org', 'CRITICAL - RCE module'),
+              ('wordpress.com', 'CRITICAL - SQLi/RCE'),
+              ('joomla.org', 'CRITICAL - SQLi/RCE'),
+              ('drupal.org', 'CRITICAL - RCE'),
               ('magento.com', 'CRITICAL - SQLi/RCE'),
-              ('shopify.com', 'CRITICAL - RCE theme'),
-              ('laravel.com', 'CRITICAL - RCE core'),
-              ('djangoproject.com', 'CRITICAL - RCE core'),
-              ('rubyonrails.org', 'CRITICAL - RCE core'),
-              ('spring.io', 'CRITICAL - RCE core'),
-              ('stripe.com', 'CRITICAL - Payment bypass'),
-              ('paypal.com', 'CRITICAL - Payment logic'),
-              ('square.com', 'CRITICAL - Payment logic'),
-              ('coinbase.com', 'CRITICAL - Crypto theft'),
-              ('binance.com', 'CRITICAL - Withdraw bypass'),
-              ('kraken.com', 'CRITICAL - Trading logic'),
-              ('uniswap.org', 'CRITICAL - Smart contract drain'),
-              ('chain.link', 'CRITICAL - Oracle manipulation'),
-              ('aave.com', 'CRITICAL - Lending logic'),
-              ('compound.finance', 'CRITICAL - Lending logic'),
-              ('gmx.io', 'CRITICAL - Trading logic'),
-              ('morpho.org', 'CRITICAL - Lending logic'),
-              ('injective.com', 'CRITICAL - Trading logic'),
-              ('sky.money', 'CRITICAL - Stablecoin logic'),
+              ('shopify.com', 'CRITICAL - RCE'),
+              ('laravel.com', 'CRITICAL - RCE'),
+              ('djangoproject.com', 'CRITICAL - RCE'),
+              ('rubyonrails.org', 'CRITICAL - RCE'),
+              ('spring.io', 'CRITICAL - RCE'),
+              ('stripe.com', 'CRITICAL - Payment'),
+              ('paypal.com', 'CRITICAL - Payment'),
+              ('square.com', 'CRITICAL - Payment'),
+              ('coinbase.com', 'CRITICAL - Crypto'),
+              ('binance.com', 'CRITICAL - Crypto'),
+              ('kraken.com', 'CRITICAL - Trading'),
+              ('uniswap.org', 'CRITICAL - Smart Contract'),
+              ('chain.link', 'CRITICAL - Oracle'),
+              ('aave.com', 'CRITICAL - Lending'),
+              ('compound.finance', 'CRITICAL - Lending'),
+              ('gmx.io', 'CRITICAL - Trading'),
+              ('morpho.org', 'CRITICAL - Lending'),
+              ('injective.com', 'CRITICAL - Trading'),
+              ('sky.money', 'CRITICAL - Stablecoin'),
               ('layerzero.com', 'CRITICAL - Cross-chain'),
               ('wormhole.com', 'CRITICAL - Cross-chain'),
-              ('amazon.com', 'CRITICAL - Payment bypass'),
-              ('ebay.com', 'CRITICAL - Auction logic'),
-              ('alibaba.com', 'CRITICAL - Trade logic'),
-              ('booking.com', 'CRITICAL - Booking bypass'),
-              ('expedia.com', 'CRITICAL - Booking logic'),
-              ('airbnb.com', 'CRITICAL - Reservation logic'),
-              ('tripadvisor.com', 'CRITICAL - Review logic'),
-              ('reddit.com', 'CRITICAL - API logic'),
-              ('discord.com', 'CRITICAL - API bypass'),
-              ('telegram.org', 'CRITICAL - Bot takeover'),
-              ('slack.com', 'CRITICAL - Integration bypass'),
-              ('github.com', 'CRITICAL - API bypass'),
-              ('gitlab.com', 'CRITICAL - CI/CD escape'),
-              ('bitbucket.org', 'CRITICAL - Pipeline escape'),
-              ('aws.amazon.com', 'CRITICAL - Cloud escape'),
-              ('azure.microsoft.com', 'CRITICAL - Cloud escape'),
-              ('cloud.google.com', 'CRITICAL - Cloud escape'),
-              ('digitalocean.com', 'CRITICAL - Container escape'),
-              ('cnn.com', 'CRITICAL - CMS logic'),
-              ('bbc.com', 'CRITICAL - CMS logic'),
-              ('nytimes.com', 'CRITICAL - Paywall logic'),
-              ('theguardian.com', 'CRITICAL - Comment logic'),
-              ('near.org', 'CRITICAL - Blockchain logic'),
-              ('aptosfoundation.org', 'CRITICAL - Blockchain logic'),
-              ('pyth.network', 'CRITICAL - Oracle logic'),
-              ('vietnamnet.vn', 'HIGH - News CMS'),
-              ('zingnews.vn', 'HIGH - News CMS'),
+              ('amazon.com', 'CRITICAL - Payment'),
+              ('ebay.com', 'CRITICAL - Auction'),
+              ('alibaba.com', 'CRITICAL - Trade'),
+              ('booking.com', 'CRITICAL - Booking'),
+              ('expedia.com', 'CRITICAL - Booking'),
+              ('airbnb.com', 'CRITICAL - Reservation'),
+              ('tripadvisor.com', 'CRITICAL - Review'),
+              ('reddit.com', 'CRITICAL - API'),
+              ('discord.com', 'CRITICAL - API'),
+              ('telegram.org', 'CRITICAL - Bot'),
+              ('slack.com', 'CRITICAL - Integration'),
+              ('github.com', 'CRITICAL - API'),
+              ('gitlab.com', 'CRITICAL - CI/CD'),
+              ('bitbucket.org', 'CRITICAL - Pipeline'),
+              ('aws.amazon.com', 'CRITICAL - Cloud'),
+              ('azure.microsoft.com', 'CRITICAL - Cloud'),
+              ('cloud.google.com', 'CRITICAL - Cloud'),
+              ('digitalocean.com', 'CRITICAL - Cloud'),
+              ('cnn.com', 'CRITICAL - CMS'),
+              ('bbc.com', 'CRITICAL - CMS'),
+              ('nytimes.com', 'CRITICAL - Paywall'),
+              ('theguardian.com', 'CRITICAL - Comment'),
+              ('near.org', 'CRITICAL - Blockchain'),
+              ('aptosfoundation.org', 'CRITICAL - Blockchain'),
+              ('pyth.network', 'CRITICAL - Oracle'),
+              ('vietnamnet.vn', 'HIGH - News'),
+              ('zingnews.vn', 'HIGH - News'),
               ('kenh14.vn', 'HIGH - Entertainment'),
-              ('tinhte.vn', 'HIGH - Tech forum'),
+              ('tinhte.vn', 'HIGH - Tech'),
               ('tiki.vn', 'HIGH - E-commerce'),
               ('sendo.vn', 'HIGH - E-commerce'),
               ('shopee.vn', 'HIGH - E-commerce'),
@@ -183,6 +183,30 @@ jobs:
               ('cbc.ca', 'HIGH - News'),
               ('clarin.com', 'HIGH - News'),
               ('eluniversal.com.mx', 'HIGH - News'),
+              ('techcrunch.com', 'MEDIUM - Tech'),
+              ('theverge.com', 'MEDIUM - Tech'),
+              ('wired.com', 'MEDIUM - Tech'),
+              ('arstechnica.com', 'MEDIUM - Tech'),
+              ('securityweek.com', 'MEDIUM - Security'),
+              ('darkreading.com', 'MEDIUM - Security'),
+              ('threatpost.com', 'MEDIUM - Security'),
+              ('bloomberg.com', 'MEDIUM - Finance'),
+              ('reuters.com', 'MEDIUM - Finance'),
+              ('ft.com', 'MEDIUM - Finance'),
+              ('edx.org', 'MEDIUM - Education'),
+              ('coursera.org', 'MEDIUM - Education'),
+              ('udemy.com', 'MEDIUM - Education'),
+              ('imdb.com', 'MEDIUM - Entertainment'),
+              ('rottentomatoes.com', 'MEDIUM - Entertainment'),
+              ('metacritic.com', 'MEDIUM - Entertainment'),
+              ('espn.com', 'MEDIUM - Sports'),
+              ('skysports.com', 'MEDIUM - Sports'),
+              ('steampowered.com', 'MEDIUM - Gaming'),
+              ('epicgames.com', 'MEDIUM - Gaming'),
+              ('gog.com', 'MEDIUM - Gaming'),
+              ('foodnetwork.com', 'MEDIUM - Food'),
+              ('allrecipes.com', 'MEDIUM - Food'),
+              ('epicurious.com', 'MEDIUM - Food'),
           ]
           
           high_value_domains = [d for d, _ in high_value_websites]
@@ -208,7 +232,7 @@ jobs:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for link in soup.find_all('a', href=True):
-                      if count >= 100:
+                      if count >= 80:
                           break
                       href = link['href']
                       if '/programs/' in href and 'hackerone.com' not in href:
@@ -239,7 +263,7 @@ jobs:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for item in soup.find_all(['a', 'div'], class_=True):
-                      if count >= 100:
+                      if count >= 80:
                           break
                       text = item.text.strip()
                       if '.' in text and len(text) > 5 and ' ' not in text:
@@ -288,47 +312,6 @@ jobs:
                                       count += 1
           except Exception as e:
               print(f"⚠️ Lỗi Immunefi: {e}")
-          
-          # ============================================
-          # THÊM WEB MỞ RỘNG
-          # ============================================
-          print("\n🔍 ĐANG THÊM WEB MỞ RỘNG...")
-          extra_websites = [
-              ('techcrunch.com', 'MEDIUM - Tech news'),
-              ('theverge.com', 'MEDIUM - Tech news'),
-              ('wired.com', 'MEDIUM - Tech news'),
-              ('arstechnica.com', 'MEDIUM - Tech news'),
-              ('securityweek.com', 'MEDIUM - Security news'),
-              ('darkreading.com', 'MEDIUM - Security news'),
-              ('threatpost.com', 'MEDIUM - Security news'),
-              ('bloomberg.com', 'MEDIUM - Finance news'),
-              ('reuters.com', 'MEDIUM - Finance news'),
-              ('ft.com', 'MEDIUM - Finance news'),
-              ('edx.org', 'MEDIUM - Education'),
-              ('coursera.org', 'MEDIUM - Education'),
-              ('udemy.com', 'MEDIUM - Education'),
-              ('imdb.com', 'MEDIUM - Entertainment'),
-              ('rottentomatoes.com', 'MEDIUM - Entertainment'),
-              ('metacritic.com', 'MEDIUM - Entertainment'),
-              ('espn.com', 'MEDIUM - Sports'),
-              ('skysports.com', 'MEDIUM - Sports'),
-              ('steampowered.com', 'MEDIUM - Gaming'),
-              ('epicgames.com', 'MEDIUM - Gaming'),
-              ('gog.com', 'MEDIUM - Gaming'),
-              ('foodnetwork.com', 'MEDIUM - Food'),
-              ('allrecipes.com', 'MEDIUM - Food'),
-              ('epicurious.com', 'MEDIUM - Food'),
-          ]
-          
-          for domain, desc in extra_websites:
-              if domain not in seen:
-                  seen.add(domain)
-                  all_targets.append({
-                      'domain': domain,
-                      'source': desc,
-                      'type': 'Extra',
-                      'priority': 2
-                  })
           
           # ============================================
           # CHỌN 1000 WEB
@@ -434,7 +417,6 @@ jobs:
             -retries 2 \
             -max-redirects 5 \
             -follow-redirects \
-            -scan-all-ips \
             -tags cve,kev,osint,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,gcp,cloud,apache,tomcat,nginx,iis,spring,laravel,django,rails,react,angular,vue,graphql,rest,soap,webcache,webmin \
             -exclude-tags "miscellaneous,takeover,panel" \
             -stats \
@@ -446,7 +428,6 @@ jobs:
             -no-interactsh \
             -disable-update-check \
             -max-host-error 20 \
-            -verify \
             -silent \
             -no-mhe \
             -project \
@@ -454,6 +435,16 @@ jobs:
             2>/dev/null || true
           
           echo "✅ HOÀN TẤT: $(date)"
+          echo "=================================================="
+          echo "📊 KẾT QUẢ QUÉT:"
+          echo "=================================================="
+          echo "📦 TỔNG SỐ LỖI: $(cat results.txt 2>/dev/null | wc -l || echo 0)"
+          echo "🔥 CRITICAL: $(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)"
+          echo "⚡ HIGH: $(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)"
+          echo "🟡 MEDIUM: $(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)"
+          echo "🟢 LOW: $(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)"
+          echo "ℹ️ INFO: $(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)"
+          echo "=================================================="
 
       - name: 📊 LỌC TẤT CẢ LỖI CÓ GIÁ TRỊ
         if: always()
@@ -511,7 +502,7 @@ jobs:
           # LIỆT KÊ TẤT CẢ LỖI
           # ============================================
           
-          # 1. CRITICAL - Nghiêm trọng nhất
+          # 1. CRITICAL
           if [ $CRITICAL -gt 0 ]; then
               echo "" >> report.txt
               echo "🔥 CRITICAL (💰 $10,000+):" >> report.txt
@@ -519,7 +510,7 @@ jobs:
               jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # 2. HIGH - Nghiêm trọng
+          # 2. HIGH
           if [ $HIGH -gt 0 ]; then
               echo "" >> report.txt
               echo "⚡ HIGH (💰 $1,000+):" >> report.txt
@@ -527,7 +518,7 @@ jobs:
               jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # 3. MEDIUM - Trung bình
+          # 3. MEDIUM
           if [ $MEDIUM -gt 0 ]; then
               echo "" >> report.txt
               echo "🟡 MEDIUM (💰 $100+):" >> report.txt
@@ -535,7 +526,7 @@ jobs:
               jq -r 'select(.info.severity=="medium") | "[🟡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # 4. LOW - Thấp
+          # 4. LOW
           if [ $LOW -gt 0 ]; then
               echo "" >> report.txt
               echo "🟢 LOW (💰 $10+):" >> report.txt
@@ -543,7 +534,7 @@ jobs:
               jq -r 'select(.info.severity=="low") | "[🟢] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # 5. INFO - Thông tin
+          # 5. INFO
           if [ $INFO -gt 0 ]; then
               echo "" >> report.txt
               echo "ℹ️ INFO (Có thể dẫn đến lỗi lớn):" >> report.txt
@@ -560,21 +551,14 @@ jobs:
           cat targets.txt >> report.txt
           
           # ============================================
-          # TẠO FILE LỖI GIÁ TRỊ CAO - TẤT CẢ CÁC LOẠI
+          # TẠO FILE LỖI GIÁ TRỊ
           # ============================================
           jq 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium" or .info.severity=="low" or .info.severity=="info")' results.json 2>/dev/null > all_value_results.json || echo '[]' > all_value_results.json
           
-          # ============================================
-          # TẠO FILE CHỈ LỖI NGHIÊM TRỌNG
-          # ============================================
           jq 'select(.info.severity=="critical" or .info.severity=="high")' results.json 2>/dev/null > critical_high_results.json || echo '[]' > critical_high_results.json
           
           echo ""
           echo "✅ ĐÃ LỌC XONG TẤT CẢ LỖI CÓ GIÁ TRỊ!"
-          echo "📊 FILE KẾT QUẢ:"
-          echo "   - all_value_results.json (Tất cả lỗi có giá trị)"
-          echo "   - critical_high_results.json (Chỉ Critical + High)"
-          echo "   - report.txt (Báo cáo chi tiết)"
 
       - name: 💾 LƯU KHO BÁU
         if: always()
