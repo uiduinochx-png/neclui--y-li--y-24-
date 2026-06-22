@@ -1,4 +1,4 @@
-name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI GIÁ TRỊ"
+name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI"
 
 on:
   workflow_dispatch:
@@ -56,7 +56,7 @@ jobs:
           
           echo "✅ CÀI ĐẶT HOÀN TẤT!"
 
-      - name: 👑 LẤY 20 WEB NHIỀU LỖI NHẤT
+      - name: 👑 LẤY 20 WEB
         id: get_targets
         run: |
           echo "🌌 CHỦ NHÂN VŨ TRỤ ĐANG TÌM MỤC TIÊU..."
@@ -79,7 +79,7 @@ jobs:
           seen = set()
           
           print("="*70)
-          print("👑 CHỦ NHÂN VŨ TRỤ - TÌM WEB NHIỀU LỖI GIÁ TRỊ")
+          print("👑 CHỦ NHÂN VŨ TRỤ - TÌM WEB NHIỀU LỖI")
           print("="*70)
           print(f"📊 WEB ĐÃ QUÉT: {len(history['scanned'])}")
           print(f"📊 WEB GIÁ TRỊ CAO: {len(history['high_value'])}")
@@ -194,7 +194,7 @@ jobs:
           except Exception as e:
               print(f"⚠️ Lỗi Immunefi: {e}")
           
-          print("\n👑 CHỌN 20 WEB NHIỀU LỖI NHẤT...")
+          print("\n👑 CHỌN 20 WEB...")
           
           priority_1 = [t for t in all_targets if t['priority'] == 1]
           priority_2 = [t for t in all_targets if t['priority'] == 2]
@@ -229,7 +229,7 @@ jobs:
                   f.write(f"{domain}  # {t['source']}\n")
           
           print("\n" + "="*70)
-          print("👑 20 WEB NHIỀU LỖI GIÁ TRỊ NHẤT:")
+          print("👑 20 WEB NHIỀU LỖI NHẤT:")
           print("="*70)
           for i, t in enumerate(selected, 1):
               icon = "💎" if t['priority'] == 1 else ("🔶" if t['priority'] == 2 else "🔹")
@@ -297,10 +297,8 @@ jobs:
             -max-redirects 5 \
             -follow-redirects \
             -scan-all-ips \
-            -pt http \
             -tags cve,kev,osint,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,gcp,cloud,apache,tomcat,nginx,iis,spring,laravel,django,rails,react,angular,vue,graphql,rest,soap,webcache,webmin \
             -exclude-tags "miscellaneous,takeover,panel" \
-            -show-match \
             -stats \
             -stats-interval 10 \
             -rdb report.db \
@@ -319,142 +317,57 @@ jobs:
           
           echo "✅ HOÀN TẤT: $(date)"
 
-      - name: 📊 THỐNG KÊ KẾT QUẢ
-        run: |
-          if [ ! -f results.json ]; then
-            echo '[]' > results.json
-            echo '[]' > results.jsonl
-            touch results.txt
-            exit 0
-          fi
-          
-          CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l)
-          HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l)
-          MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l)
-          LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l)
-          INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l)
-          TOTAL=$(cat results.txt 2>/dev/null | wc -l)
-          
-          echo "=================================================="
-          echo "👑 KẾT QUẢ QUÉT"
-          echo "=================================================="
-          echo "🔥 CRITICAL: $CRITICAL"
-          echo "⚡ HIGH: $HIGH"
-          echo "🟡 MEDIUM: $MEDIUM"
-          echo "🟢 LOW: $LOW"
-          echo "ℹ️ INFO: $INFO"
-          echo "📦 TỔNG: $TOTAL"
-          echo "=================================================="
-          
-          if [ $TOTAL -gt 0 ]; then
-            echo ""
-            echo "🔥 CRITICAL:"
-            jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20
-            echo ""
-            echo "⚡ HIGH:"
-            jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20
-          fi
-
-      - name: 📄 TẠO BÁO CÁO
+      - name: 📊 TẠO KẾT QUẢ
         if: always()
         run: |
-          cat > report.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>👑 CHỦ NHÂN VŨ TRỤ</title>
-            <style>
-              *{margin:0;padding:0;box-sizing:border-box}
-              body{font-family:'Segoe UI',Arial,sans-serif;background:radial-gradient(ellipse at center,#0a0a0f 0%,#1a0a2e 30%,#0a0a0f 100%);min-height:100vh;padding:20px;color:#e0e0e0}
-              .container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border-radius:20px;padding:30px;border:2px solid rgba(255,215,0,0.3);box-shadow:0 0 100px rgba(255,215,0,0.1)}
-              .header{text-align:center;border-bottom:2px solid rgba(255,215,0,0.2);padding-bottom:20px;margin-bottom:30px}
-              .header h1{font-size:36px;background:linear-gradient(90deg,#ffd700,#ff6b00,#ffd700,#ff6b00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:crownGlow 3s infinite alternate}
-              @keyframes crownGlow{0%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.5))}50%{filter:drop-shadow(0 0 60px rgba(255,215,0,0.8))}100%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.5))}}
-              .header .sub{font-size:16px;color:#ffd700;opacity:0.8;margin-top:5px}
-              .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-bottom:30px}
-              .stat-card{background:rgba(255,255,255,0.05);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(255,215,0,0.1);transition:all 0.3s}
-              .stat-card:hover{transform:scale(1.05);border-color:#ffd700;box-shadow:0 0 40px rgba(255,215,0,0.2)}
-              .stat-number{font-size:32px;font-weight:bold}
-              .stat-label{font-size:12px;opacity:0.7;margin-top:5px}
-              .critical{color:#ff4444;text-shadow:0 0 30px rgba(255,68,68,0.6)}
-              .high{color:#ff8800;text-shadow:0 0 30px rgba(255,136,0,0.6)}
-              .medium{color:#ffcc00;text-shadow:0 0 30px rgba(255,204,0,0.6)}
-              .low{color:#44ccff;text-shadow:0 0 30px rgba(68,204,255,0.6)}
-              .info{color:#8888ff;text-shadow:0 0 30px rgba(136,136,255,0.6)}
-              .total{color:#ffd700;text-shadow:0 0 40px rgba(255,215,0,0.6)}
-              table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);border-radius:12px;overflow:hidden;margin-top:20px;border:1px solid rgba(255,215,0,0.1)}
-              th,td{padding:12px 15px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
-              th{background:rgba(255,215,0,0.1);color:#ffd700;font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:2px}
-              tr:hover{background:rgba(255,215,0,0.05)}
-              .sev-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:bold;text-transform:uppercase}
-              .sev-critical{background:#ff4444;color:#fff;box-shadow:0 0 20px rgba(255,68,68,0.5)}
-              .sev-high{background:#ff8800;color:#fff;box-shadow:0 0 20px rgba(255,136,0,0.5)}
-              .sev-medium{background:#ffcc00;color:#000}
-              .sev-low{background:#44ccff;color:#000}
-              .sev-info{background:#8888ff;color:#fff}
-              .footer{margin-top:30px;padding-top:15px;border-top:1px solid rgba(255,215,0,0.1);text-align:center;font-size:11px;opacity:0.4;color:#ffd700}
-              .loading{text-align:center;padding:40px;color:#ffd700}
-              .empty{text-align:center;padding:30px;opacity:0.5;color:#ffd700}
-            </style>
-          </head>
-          <body>
-          <div class="container">
-            <div class="header">
-              <h1>👑 CHỦ NHÂN VŨ TRỤ</h1>
-              <div class="sub">🔥 LỖI GIÁ TRỊ - CHƯA VÁ</div>
-            </div>
-            <div class="stats-grid">
-              <div class="stat-card"><div class="stat-number critical" id="critical">...</div><div class="stat-label">🔥 CRITICAL</div></div>
-              <div class="stat-card"><div class="stat-number high" id="high">...</div><div class="stat-label">⚡ HIGH</div></div>
-              <div class="stat-card"><div class="stat-number medium" id="medium">...</div><div class="stat-label">🟡 MEDIUM</div></div>
-              <div class="stat-card"><div class="stat-number low" id="low">...</div><div class="stat-label">🟢 LOW</div></div>
-              <div class="stat-card"><div class="stat-number info" id="info">...</div><div class="stat-label">ℹ️ INFO</div></div>
-              <div class="stat-card"><div class="stat-number total" id="total">...</div><div class="stat-label">📦 TOTAL</div></div>
-            </div>
-            <h3 style="color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,0.3);">🔥 KHO BÁU CRITICAL & HIGH</h3>
-            <div id="table-container"><div class="loading">⏳ ĐANG TẢI...</div></div>
-            <div class="footer">👑 Chủ nhân vũ trụ • All rights reserved</div>
-          </div>
-          <script>
-            fetch('results.json')
-              .then(res => res.json())
-              .then(data => {
-                const sev = {critical:[], high:[], medium:[], low:[], info:[]};
-                if (Array.isArray(data)) {
-                  data.forEach(item => {
-                    if (item.info && sev[item.info.severity]) sev[item.info.severity].push(item);
-                  });
-                }
-                document.getElementById('critical').textContent = sev.critical.length;
-                document.getElementById('high').textContent = sev.high.length;
-                document.getElementById('medium').textContent = sev.medium.length;
-                document.getElementById('low').textContent = sev.low.length;
-                document.getElementById('info').textContent = sev.info.length;
-                const total = sev.critical.length + sev.high.length + sev.medium.length + sev.low.length + sev.info.length;
-                document.getElementById('total').textContent = total;
-                const container = document.getElementById('table-container');
-                const items = [...sev.critical, ...sev.high];
-                if (items.length === 0) {
-                  container.innerHTML = '<div class="empty">💎 Chưa có lỗi Critical/High nào</div>';
-                  return;
-                }
-                let html = '<table><tr><th>MỨC ĐỘ</th><th>TÊN LỖ HỔNG</th><th>URL</th></tr>';
-                items.forEach(item => {
-                  const badge = `<span class="sev-badge sev-${item.info.severity}">${item.info.severity.toUpperCase()}</span>`;
-                  const url = item.matchedAt || item['matched-at'] || 'N/A';
-                  html += `<tr><td>${badge}</td><td><strong style="color:#ffd700;">${item.info.name}</strong></td><td style="font-size:12px;opacity:0.8;">${url}</td></tr>`;
-                });
-                html += '</table>';
-                container.innerHTML = html;
-              })
-              .catch(err => {
-                document.getElementById('table-container').innerHTML = `<div class="empty">❌ Lỗi: ${err.message}</div>`;
-              });
-          </script>
-          </body>
-          </html>
+          echo "📊 TẠO KẾT QUẢ QUÉT..."
+          
+          # Tạo file results.txt và results.json
+          if [ -f results.txt ]; then
+            echo "✅ File results.txt đã được tạo!"
+            cat results.txt
+          else
+            echo "⚠️ KHÔNG CÓ KẾT QUẢ! TẠO FILE RỖNG..."
+            echo "Không tìm thấy lỗ hổng nào" > results.txt
+            echo '[]' > results.json
+          fi
+          
+          # Tạo báo cáo đơn giản
+          cat > report.txt << 'EOF'
+          👑 CHỦ NHÂN VŨ TRỤ - BÁO CÁO QUÉT
+          ========================================
+          
+          📊 KẾT QUẢ QUÉT
+          ========================================
           EOF
+          
+          if [ -f results.json ]; then
+            CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
+            HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
+            MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
+            LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)
+            INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)
+            TOTAL=$(cat results.txt 2>/dev/null | wc -l || echo 0)
+            
+            echo "🔥 CRITICAL: $CRITICAL" >> report.txt
+            echo "⚡ HIGH: $HIGH" >> report.txt
+            echo "🟡 MEDIUM: $MEDIUM" >> report.txt
+            echo "🟢 LOW: $LOW" >> report.txt
+            echo "ℹ️ INFO: $INFO" >> report.txt
+            echo "📦 TỔNG: $TOTAL" >> report.txt
+            
+            echo "" >> report.txt
+            echo "🔥 LỖI CRITICAL:" >> report.txt
+            jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20 >> report.txt
+            
+            echo "" >> report.txt
+            echo "⚡ LỖI HIGH:" >> report.txt
+            jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20 >> report.txt
+          fi
+          
+          echo "" >> report.txt
+          echo "📋 DANH SÁCH WEB ĐÃ QUÉT:" >> report.txt
+          cat targets.txt >> report.txt
 
       - name: 💾 LƯU KHO BÁU
         if: always()
@@ -465,6 +378,7 @@ jobs:
             results.txt
             results.json
             results.jsonl
+            report.txt
             report.html
             report.db
             targets.txt
