@@ -297,7 +297,7 @@ jobs:
             -max-redirects 5 \
             -follow-redirects \
             -scan-all-ips \
-            -pt http,https,dns,network,tcp,ssl,whois \
+            -pt http \
             -tags cve,kev,osint,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,gcp,cloud,apache,tomcat,nginx,iis,spring,laravel,django,rails,react,angular,vue,graphql,rest,soap,webcache,webmin \
             -exclude-tags "miscellaneous,takeover,panel" \
             -show-match \
