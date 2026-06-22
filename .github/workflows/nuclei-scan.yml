@@ -1,4 +1,4 @@
-name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI"
+name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI XỊN"
 
 on:
   workflow_dispatch:
@@ -56,7 +56,7 @@ jobs:
           
           echo "✅ CÀI ĐẶT HOÀN TẤT!"
 
-      - name: 👑 LẤY 20 WEB
+      - name: 👑 LẤY 20 WEB NHIỀU LỖI NHẤT
         id: get_targets
         run: |
           echo "🌌 CHỦ NHÂN VŨ TRỤ ĐANG TÌM MỤC TIÊU..."
@@ -85,51 +85,99 @@ jobs:
           print(f"📊 WEB GIÁ TRỊ CAO: {len(history['high_value'])}")
           print("="*70)
           
+          # ============================================
+          # DANH SÁCH WEB GIÁ TRỊ CAO - LUÔN CÓ
+          # ============================================
           high_value_websites = [
-              ('wordpress.com', 'CRITICAL - SQLi/RCE'),
-              ('joomla.org', 'CRITICAL - SQLi/RCE'),
-              ('drupal.org', 'CRITICAL - RCE'),
+              # CMS - Lỗi plugin/extension
+              ('wordpress.com', 'CRITICAL - SQLi/RCE plugin'),
+              ('joomla.org', 'CRITICAL - SQLi/RCE extension'),
+              ('drupal.org', 'CRITICAL - RCE module'),
               ('magento.com', 'CRITICAL - SQLi/RCE'),
-              ('shopify.com', 'CRITICAL - RCE'),
-              ('laravel.com', 'CRITICAL - RCE'),
-              ('djangoproject.com', 'CRITICAL - RCE'),
-              ('rubyonrails.org', 'CRITICAL - RCE'),
-              ('spring.io', 'CRITICAL - RCE'),
-              ('stripe.com', 'CRITICAL - Payment'),
-              ('paypal.com', 'CRITICAL - Payment'),
-              ('coinbase.com', 'CRITICAL - Crypto'),
-              ('binance.com', 'CRITICAL - Crypto'),
-              ('uniswap.org', 'CRITICAL - Smart Contract'),
-              ('chain.link', 'CRITICAL - Oracle'),
-              ('aave.com', 'CRITICAL - Lending'),
-              ('github.com', 'CRITICAL - API'),
-              ('gitlab.com', 'CRITICAL - CI/CD'),
-              ('aws.amazon.com', 'CRITICAL - Cloud'),
-              ('azure.microsoft.com', 'CRITICAL - Cloud'),
-              ('cloud.google.com', 'CRITICAL - Cloud'),
-              ('amazon.com', 'CRITICAL - Payment'),
-              ('booking.com', 'CRITICAL - Booking'),
-              ('airbnb.com', 'CRITICAL - Reservation'),
-              ('reddit.com', 'CRITICAL - API'),
-              ('discord.com', 'CRITICAL - API'),
-              ('telegram.org', 'CRITICAL - Bot'),
-              ('compound.finance', 'CRITICAL - Lending'),
-              ('gmx.io', 'CRITICAL - Trading'),
-              ('morpho.org', 'CRITICAL - Lending'),
-              ('injective.com', 'CRITICAL - Trading'),
-              ('sky.money', 'CRITICAL - Stablecoin'),
+              ('shopify.com', 'CRITICAL - RCE theme'),
+              
+              # Framework - Lỗi core
+              ('laravel.com', 'CRITICAL - RCE core'),
+              ('djangoproject.com', 'CRITICAL - RCE core'),
+              ('rubyonrails.org', 'CRITICAL - RCE core'),
+              ('spring.io', 'CRITICAL - RCE core'),
+              
+              # Payment - Lỗi logic tiền
+              ('stripe.com', 'CRITICAL - Payment bypass'),
+              ('paypal.com', 'CRITICAL - Payment logic'),
+              ('square.com', 'CRITICAL - Payment logic'),
+              
+              # Crypto - Lỗi smart contract
+              ('coinbase.com', 'CRITICAL - Crypto theft'),
+              ('binance.com', 'CRITICAL - Withdraw bypass'),
+              ('kraken.com', 'CRITICAL - Trading logic'),
+              ('uniswap.org', 'CRITICAL - Smart contract drain'),
+              ('chain.link', 'CRITICAL - Oracle manipulation'),
+              ('aave.com', 'CRITICAL - Lending logic'),
+              ('compound.finance', 'CRITICAL - Lending logic'),
+              ('gmx.io', 'CRITICAL - Trading logic'),
+              ('morpho.org', 'CRITICAL - Lending logic'),
+              ('injective.com', 'CRITICAL - Trading logic'),
+              ('sky.money', 'CRITICAL - Stablecoin logic'),
               ('layerzero.com', 'CRITICAL - Cross-chain'),
               ('wormhole.com', 'CRITICAL - Cross-chain'),
+              
+              # E-commerce - Lỗi logic
+              ('amazon.com', 'CRITICAL - Payment bypass'),
+              ('ebay.com', 'CRITICAL - Auction logic'),
+              ('alibaba.com', 'CRITICAL - Trade logic'),
+              
+              # Travel - Lỗi booking
+              ('booking.com', 'CRITICAL - Booking bypass'),
+              ('expedia.com', 'CRITICAL - Booking logic'),
+              ('airbnb.com', 'CRITICAL - Reservation logic'),
+              ('tripadvisor.com', 'CRITICAL - Review logic'),
+              
+              # Social - Lỗi API
+              ('reddit.com', 'CRITICAL - API logic'),
+              ('discord.com', 'CRITICAL - API bypass'),
+              ('telegram.org', 'CRITICAL - Bot takeover'),
+              ('slack.com', 'CRITICAL - Integration bypass'),
+              
+              # Developer - Lỗi API
+              ('github.com', 'CRITICAL - API bypass'),
+              ('gitlab.com', 'CRITICAL - CI/CD escape'),
+              ('bitbucket.org', 'CRITICAL - Pipeline escape'),
+              
+              # Cloud - Lỗi config
+              ('aws.amazon.com', 'CRITICAL - Cloud escape'),
+              ('azure.microsoft.com', 'CRITICAL - Cloud escape'),
+              ('cloud.google.com', 'CRITICAL - Cloud escape'),
+              ('digitalocean.com', 'CRITICAL - Container escape'),
+              
+              # News - Lỗi CMS
+              ('cnn.com', 'CRITICAL - CMS logic'),
+              ('bbc.com', 'CRITICAL - CMS logic'),
+              ('nytimes.com', 'CRITICAL - Paywall logic'),
+              ('theguardian.com', 'CRITICAL - Comment logic'),
+              
+              # Blockchain
+              ('near.org', 'CRITICAL - Blockchain logic'),
+              ('aptosfoundation.org', 'CRITICAL - Blockchain logic'),
+              ('pyth.network', 'CRITICAL - Oracle logic'),
           ]
           
           high_value_domains = [d for d, _ in high_value_websites]
           for domain, desc in high_value_websites:
               if domain not in seen:
                   seen.add(domain)
-                  all_targets.append({'domain': domain, 'source': desc, 'type': 'HighValue', 'priority': 1})
+                  all_targets.append({
+                      'domain': domain,
+                      'source': desc,
+                      'type': 'HighValue',
+                      'priority': 1
+                  })
                   if domain not in history['high_value']:
                       history['high_value'].append(domain)
           
+          # ============================================
+          # LẤY TỪ HACKERONE
+          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ HACKERONE...")
           try:
               r = requests.get('https://hackerone.com/programs/search?query=type:public', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -137,7 +185,7 @@ jobs:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for link in soup.find_all('a', href=True):
-                      if count >= 10:
+                      if count >= 15:
                           break
                       href = link['href']
                       if '/programs/' in href and 'hackerone.com' not in href:
@@ -146,12 +194,21 @@ jobs:
                               domain = part.strip().lower()
                               if '.' in domain and len(domain) > 5 and not domain.startswith('http'):
                                   if domain not in seen and len(domain) < 50:
+                                      is_high = domain in high_value_domains
                                       seen.add(domain)
-                                      all_targets.append({'domain': domain, 'source': 'HackerOne', 'type': 'BugBounty', 'priority': 3})
+                                      all_targets.append({
+                                          'domain': domain,
+                                          'source': 'HackerOne' + (' 💎' if is_high else ''),
+                                          'type': 'BugBounty',
+                                          'priority': 1 if is_high else 3
+                                      })
                                       count += 1
           except Exception as e:
               print(f"⚠️ Lỗi HackerOne: {e}")
           
+          # ============================================
+          # LẤY TỪ BUGCROWD
+          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ BUGCROWD...")
           try:
               r = requests.get('https://bugcrowd.com/programs', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -159,19 +216,28 @@ jobs:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for item in soup.find_all(['a', 'div'], class_=True):
-                      if count >= 10:
+                      if count >= 15:
                           break
                       text = item.text.strip()
                       if '.' in text and len(text) > 5 and ' ' not in text:
                           domain = text.lower().strip()
                           if domain and domain not in seen and len(domain) < 50:
                               if not any(x in domain for x in ['bugcrowd', 'hackerone', 'immunefi']):
+                                  is_high = domain in high_value_domains
                                   seen.add(domain)
-                                  all_targets.append({'domain': domain, 'source': 'Bugcrowd', 'type': 'BugBounty', 'priority': 3})
+                                  all_targets.append({
+                                      'domain': domain,
+                                      'source': 'Bugcrowd' + (' 💎' if is_high else ''),
+                                      'type': 'BugBounty',
+                                      'priority': 1 if is_high else 3
+                                  })
                                   count += 1
           except Exception as e:
               print(f"⚠️ Lỗi Bugcrowd: {e}")
           
+          # ============================================
+          # LẤY TỪ IMMUNEFI
+          # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ IMMUNEFI...")
           try:
               r = requests.get('https://immunefi.com/explore/', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
@@ -179,7 +245,7 @@ jobs:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for link in soup.find_all('a', href=True):
-                      if count >= 10:
+                      if count >= 15:
                           break
                       href = link['href']
                       if '/bounty/' in href and 'immunefi.com' not in href:
@@ -188,13 +254,22 @@ jobs:
                               domain = part.strip().lower()
                               if '.' in domain and len(domain) > 5:
                                   if domain not in seen:
+                                      is_high = domain in high_value_domains
                                       seen.add(domain)
-                                      all_targets.append({'domain': domain, 'source': 'Immunefi', 'type': 'Web3', 'priority': 2})
+                                      all_targets.append({
+                                          'domain': domain,
+                                          'source': 'Immunefi' + (' 💎' if is_high else ''),
+                                          'type': 'Web3',
+                                          'priority': 1 if is_high else 2
+                                      })
                                       count += 1
           except Exception as e:
               print(f"⚠️ Lỗi Immunefi: {e}")
           
-          print("\n👑 CHỌN 20 WEB...")
+          # ============================================
+          # CHỌN 20 WEB NHIỀU LỖI NHẤT
+          # ============================================
+          print("\n👑 CHỌN 20 WEB NHIỀU LỖI NHẤT...")
           
           priority_1 = [t for t in all_targets if t['priority'] == 1]
           priority_2 = [t for t in all_targets if t['priority'] == 2]
@@ -214,6 +289,7 @@ jobs:
           random.shuffle(selected)
           selected = selected[:20]
           
+          # Cập nhật lịch sử
           for t in selected:
               if t['domain'] not in history['scanned']:
                   history['scanned'].append(t['domain'])
@@ -221,6 +297,7 @@ jobs:
           with open('history.json', 'w') as f:
               json.dump(history, f, indent=2)
           
+          # Ghi file target
           with open('targets.txt', 'w') as f:
               for t in selected:
                   domain = t['domain']
@@ -236,6 +313,9 @@ jobs:
               print(f"{i:2}. {icon} {t['domain']:35} → {t['source']}")
           print("="*70)
           print(f"✅ TỔNG: {len(selected)} WEB")
+          print(f"💎 WEB GIÁ TRỊ CAO: {len([t for t in selected if t['priority'] == 1])}")
+          print(f"🔶 WEB3: {len([t for t in selected if t['priority'] == 2])}")
+          print(f"🔹 BUG BOUNTY: {len([t for t in selected if t['priority'] == 3])}")
           print("="*70)
           PYEOF
           
@@ -317,57 +397,76 @@ jobs:
           
           echo "✅ HOÀN TẤT: $(date)"
 
-      - name: 📊 TẠO KẾT QUẢ
+      - name: 📊 LỌC LỖI CÓ GIÁ TRỊ
         if: always()
         run: |
-          echo "📊 TẠO KẾT QUẢ QUÉT..."
+          echo "🔥 ĐANG LỌC LỖI CÓ GIÁ TRỊ..."
           
-          # Tạo file results.txt và results.json
-          if [ -f results.txt ]; then
-            echo "✅ File results.txt đã được tạo!"
-            cat results.txt
-          else
-            echo "⚠️ KHÔNG CÓ KẾT QUẢ! TẠO FILE RỖNG..."
-            echo "Không tìm thấy lỗ hổng nào" > results.txt
-            echo '[]' > results.json
+          # Tạo file kết quả
+          if [ ! -f results.json ]; then
+              echo '[]' > results.json
+              echo "Không tìm thấy lỗ hổng nào" > results.txt
           fi
           
-          # Tạo báo cáo đơn giản
+          # Lọc lỗi có giá trị (Critical, High, Medium)
+          echo "=================================================="
+          echo "👑 LỖI CÓ GIÁ TRỊ (Critical, High, Medium)"
+          echo "=================================================="
+          
+          CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
+          HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
+          MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
+          TOTAL=$((CRITICAL + HIGH + MEDIUM))
+          
+          echo "🔥 CRITICAL: $CRITICAL"
+          echo "⚡ HIGH: $HIGH"
+          echo "🟡 MEDIUM: $MEDIUM"
+          echo "📦 TỔNG GIÁ TRỊ: $TOTAL"
+          echo "=================================================="
+          
+          # Tạo báo cáo giá trị
           cat > report.txt << 'EOF'
-          👑 CHỦ NHÂN VŨ TRỤ - BÁO CÁO QUÉT
+          👑 CHỦ NHÂN VŨ TRỤ - LỖI CÓ GIÁ TRỊ
           ========================================
           
-          📊 KẾT QUẢ QUÉT
+          📊 THỐNG KÊ LỖI CÓ GIÁ TRỊ
           ========================================
           EOF
           
-          if [ -f results.json ]; then
-            CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
-            HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
-            MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
-            LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)
-            INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)
-            TOTAL=$(cat results.txt 2>/dev/null | wc -l || echo 0)
-            
-            echo "🔥 CRITICAL: $CRITICAL" >> report.txt
-            echo "⚡ HIGH: $HIGH" >> report.txt
-            echo "🟡 MEDIUM: $MEDIUM" >> report.txt
-            echo "🟢 LOW: $LOW" >> report.txt
-            echo "ℹ️ INFO: $INFO" >> report.txt
-            echo "📦 TỔNG: $TOTAL" >> report.txt
-            
-            echo "" >> report.txt
-            echo "🔥 LỖI CRITICAL:" >> report.txt
-            jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20 >> report.txt
-            
-            echo "" >> report.txt
-            echo "⚡ LỖI HIGH:" >> report.txt
-            jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -20 >> report.txt
+          echo "🔥 CRITICAL: $CRITICAL" >> report.txt
+          echo "⚡ HIGH: $HIGH" >> report.txt
+          echo "🟡 MEDIUM: $MEDIUM" >> report.txt
+          echo "📦 TỔNG GIÁ TRỊ: $TOTAL" >> report.txt
+          echo "========================================" >> report.txt
+          
+          # Liệt kê lỗi Critical
+          if [ $CRITICAL -gt 0 ]; then
+              echo "" >> report.txt
+              echo "🔥 CRITICAL:" >> report.txt
+              jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
           fi
           
+          # Liệt kê lỗi High
+          if [ $HIGH -gt 0 ]; then
+              echo "" >> report.txt
+              echo "⚡ HIGH:" >> report.txt
+              jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
+          fi
+          
+          # Liệt kê lỗi Medium
+          if [ $MEDIUM -gt 0 ]; then
+              echo "" >> report.txt
+              echo "🟡 MEDIUM:" >> report.txt
+              jq -r 'select(.info.severity=="medium") | "[🟡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
+          fi
+          
+          # Danh sách web đã quét
           echo "" >> report.txt
           echo "📋 DANH SÁCH WEB ĐÃ QUÉT:" >> report.txt
           cat targets.txt >> report.txt
+          
+          # Tạo file chỉ chứa lỗi giá trị cao
+          jq 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium")' results.json 2>/dev/null > high_value_results.json || echo '[]' > high_value_results.json
 
       - name: 💾 LƯU KHO BÁU
         if: always()
@@ -377,6 +476,7 @@ jobs:
           path: |
             results.txt
             results.json
+            high_value_results.json
             results.jsonl
             report.txt
             report.html
