@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 300
     
     steps:
-      - name: 🧠 KHỞI TẠO CHIP V10.0 CHỦ QUYỀN VŨ TRỤ
+      - name: 🧠 KHỞI TẠO CHIP V10.0
         run: |
           echo "╔══════════════════════════════════════════════════════════════════════════════╗"
           echo "║                                                                            ║"
@@ -64,19 +64,13 @@ jobs:
           echo "🚀 CHẾ ĐỘ QUÉT: ${{ github.event.inputs.scan_mode || 'ultimate' }}"
           echo "🎯 SỐ WEB: ${{ github.event.inputs.target_count || '100' }}"
           echo "📊 MỨC ĐỘ LỖI: ${{ github.event.inputs.severity_level || 'critical,high,medium,low,info' }}"
-          echo ""
-          echo "🔌 CHIP V10.0 ĐANG KHỞI TẠO..."
-          echo "🔋 NẠP NĂNG LƯỢNG: 0% → 100%"
-          echo "🧠 KẾT NỐI AI 50X..."
-          echo "🌍 KẾT NỐI MẠNG TOÀN CẦU..."
-          echo "✅ CHIP V10.0 CHỦ QUYỀN ĐÃ SẴN SÀNG!"
 
       - name: 📥 TẢI MÃ NGUỒN
         uses: actions/checkout@v4
 
-      - name: 📦 CÀI ĐẶT CÔNG CỤ - CHIP V10.0 TỐI ƯU
+      - name: 📦 CÀI ĐẶT CÔNG CỤ
         run: |
-          echo "🔥 CHIP V10.0 ĐANG CÀI ĐẶT CÔNG CỤ TỐI ƯU..."
+          echo "🔥 ĐANG CÀI ĐẶT CÔNG CỤ..."
           
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends \
@@ -85,8 +79,8 @@ jobs:
             nmap ffuf unzip wget \
             && sudo rm -rf /var/lib/apt/lists/*
           
-          echo "📥 CHIP V10.0 ĐANG TẢI NUCLEI SIÊU TỐC..."
-          wget -q --show-progress https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
+          echo "📥 ĐANG TẢI NUCLEI..."
+          wget -q https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
           export PATH=$PATH:/usr/local/go/bin
           echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
@@ -98,7 +92,7 @@ jobs:
           
           pip3 install -q --no-cache-dir requests beautifulsoup4 lxml
           
-          echo "📥 CHIP V10.0 CẬP NHẬT TEMPLATE NUCLEI..."
+          echo "📥 CẬP NHẬT TEMPLATE NUCLEI..."
           for i in 1 2 3; do
             nuclei -update-templates -silent && break || echo "⚠️ Lỗi lần $i, thử lại..."
             sleep 5
@@ -106,7 +100,7 @@ jobs:
           
           nuclei -templates-version
           
-          echo "📥 CHIP V10.0 TẢI TEMPLATE BỔ SUNG..."
+          echo "📥 TẢI TEMPLATE BỔ SUNG..."
           mkdir -p ~/nuclei-templates
           cd ~/nuclei-templates
           
@@ -117,47 +111,30 @@ jobs:
           git clone --depth 1 -q https://github.com/zeroc00I/nuclei-templates.git zero 2>/dev/null &
           wait
           
-          echo "✅ CHIP V10.0 CÀI ĐẶT HOÀN TẤT!"
+          echo "✅ CÀI ĐẶT HOÀN TẤT!"
 
-      - name: 🌍 CHIP V10.0 - TÌM WEB TOÀN CẦU THÔNG MINH
-        id: get_targets
+      - name: 🌍 CHIP V10.0 - TẠO FILE TÌM WEB
         run: |
-          echo "🌌 CHIP V10.0 CHỦ QUYỀN ĐANG TÌM WEB TOÀN CẦU..."
-          
-          TARGET_LIMIT=${{ github.event.inputs.target_count || '100' }}
-          
-          cat > chip_v10_finder.py << 'PYEOF'
+          cat > chip_v10_part1.py << 'EOF'
           import json, re, requests, random, time, os, sys
           from bs4 import BeautifulSoup
           from datetime import datetime
           from concurrent.futures import ThreadPoolExecutor, as_completed
-          import hashlib
           
-          # ============================================================
-          # 1. CHIP V10.0 - CHỦ QUYỀN VŨ TRỤ
-          # ============================================================
           class ChipV10:
               def __init__(self, ai_level='20x'):
                   self.version = "V10.0"
                   self.ai_level = ai_level
-                  self.power = 100  # 100% sức mạnh
+                  self.power = 100
                   self.stability = 100
                   self.performance = "ultimate"
-                  self.automation = 100  # 100% tự động hóa
-                  self.optimization = {
-                      'concurrency': 150,
-                      'bulk_size': 75,
-                      'rate_limit': 0,
-                      'timeout': 25,
-                      'retries': 5,
-                      'max_redirects': 10
-                  }
+                  self.automation = 100
+                  self.optimization = {'concurrency': 150, 'bulk_size': 75, 'rate_limit': 0, 'timeout': 25, 'retries': 5, 'max_redirects': 10}
                   self.scanned_count = 0
                   self.found_vulns = 0
                   self.bounty_estimate = 0
                   
               def adjust_parameters(self, target_count):
-                  """CHIP V10.0 tự động điều chỉnh thông số tối ưu nhất"""
                   if target_count <= 50:
                       self.optimization = {'concurrency': 60, 'bulk_size': 25, 'rate_limit': 25, 'timeout': 12, 'retries': 3, 'max_redirects': 5}
                   elif target_count <= 100:
@@ -168,168 +145,78 @@ jobs:
                       self.optimization = {'concurrency': 200, 'bulk_size': 100, 'rate_limit': 80, 'timeout': 30, 'retries': 5, 'max_redirects': 10}
                   else:
                       self.optimization = {'concurrency': 250, 'bulk_size': 120, 'rate_limit': 120, 'timeout': 35, 'retries': 6, 'max_redirects': 12}
-                  
-                  self.stability = 100 - (target_count // 20)
-                  if self.stability < 60:
-                      self.stability = 60
-                  
+                  self.stability = max(60, 100 - (target_count // 20))
                   return self.optimization
-              
+          EOF
+
+      - name: 🌍 CHIP V10.0 - PHÂN TÍCH WEB
+        run: |
+          cat > chip_v10_part2.py << 'EOF'
+          class ChipV10:
               def analyze_web_value(self, domain):
-                  """CHIP V10.0 phân tích giá trị web - Tìm web có tiền"""
                   score = 0
                   reasons = []
                   bounty_estimate = 0
                   
-                  # === CHIP V10.0 - 20 TIÊU CHÍ ĐÁNH GIÁ ===
-                  
-                  # 1. CMS phổ biến - Nhiều lỗ hổng
                   cms_list = ['wordpress', 'shopify', 'magento', 'drupal', 'joomla', 'laravel', 'django', 'rails']
                   if any(x in domain for x in cms_list):
-                      score += 15
-                      bounty_estimate += 500
-                      reasons.append("CMS phổ biến - Lỗi giá trị cao")
+                      score += 15; bounty_estimate += 500; reasons.append("CMS phổ biến")
                   
-                  # 2. Domain chính phủ/giáo dục - Bounty cao
                   if any(x in domain for x in ['.gov', '.edu', '.mil', '.gouv']):
-                      score += 25
-                      bounty_estimate += 2000
-                      reasons.append("Domain chính phủ - Bounty cực cao")
+                      score += 25; bounty_estimate += 2000; reasons.append("Domain chính phủ")
                   
-                  # 3. Domain tài chính - Lỗi giá trị cực cao
                   finance_keywords = ['bank', 'finance', 'pay', 'crypto', 'coin', 'wallet', 'exchange', 'trading', 'invest']
                   if any(x in domain for x in finance_keywords):
-                      score += 20
-                      bounty_estimate += 3000
-                      reasons.append("Domain tài chính - Lỗi cực cao")
+                      score += 20; bounty_estimate += 3000; reasons.append("Domain tài chính")
                   
-                  # 4. Web3/Blockchain - Bounty lên đến $1M
                   web3_keywords = ['eth', 'sol', 'polygon', 'avalanche', 'bridge', 'defi', 'nft', 'swap', 'lend', 'dao']
                   if any(x in domain for x in web3_keywords):
-                      score += 30
-                      bounty_estimate += 10000
-                      reasons.append("Web3/Blockchain - Bounty $1M")
+                      score += 30; bounty_estimate += 10000; reasons.append("Web3/Blockchain")
                   
-                  # 5. Domain có subdomain - Nhiều service
                   if domain.count('.') > 1:
-                      score += 8
-                      bounty_estimate += 300
-                      reasons.append("Subdomain - Nhiều service")
+                      score += 8; bounty_estimate += 300; reasons.append("Subdomain")
                   
-                  # 6. Domain từ Bug Bounty platforms
-                  bug_bounty_platforms = ['hackerone', 'bugcrowd', 'immunefi', 'intigriti', 'yeswehack']
+                  bug_bounty_platforms = ['hackerone', 'bugcrowd', 'immunefi', 'intigriti']
                   if any(x in domain for x in bug_bounty_platforms):
-                      score += 20
-                      bounty_estimate += 5000
-                      reasons.append("Bug Bounty Platform - Chính thức")
+                      score += 20; bounty_estimate += 5000; reasons.append("Bug Bounty Platform")
                   
-                  # 7. Domain ngắn - Web lớn
                   if len(domain) < 10:
-                      score += 5
-                      bounty_estimate += 200
-                      reasons.append("Domain ngắn - Web lớn")
+                      score += 5; bounty_estimate += 200; reasons.append("Domain ngắn")
                   
-                  # 8. Domain có số - Dễ có lỗi
                   if any(c.isdigit() for c in domain):
-                      score += 8
-                      bounty_estimate += 300
-                      reasons.append("Có số - Dễ có lỗi")
+                      score += 8; bounty_estimate += 300; reasons.append("Có số")
                   
-                  # 9. Domain từ các nước có nhiều bug bounty
-                  high_bounty_countries = ['.com', '.io', '.co', '.ai', '.vn', '.jp', '.kr', '.sg', '.de', '.uk', '.fr', '.ca']
-                  if any(x in domain for x in high_bounty_countries):
-                      score += 3
-                      reasons.append("Nước có nhiều bug bounty")
-                  
-                  # 10. Domain có từ khóa bảo mật
-                  security_keywords = ['security', 'auth', 'login', 'admin', 'api', 'gateway', 'proxy', 'vpn', 'firewall']
+                  security_keywords = ['security', 'auth', 'login', 'admin', 'api', 'gateway', 'proxy']
                   if any(x in domain for x in security_keywords):
-                      score += 10
-                      bounty_estimate += 500
-                      reasons.append("Từ khóa bảo mật - Dễ có lỗi")
+                      score += 10; bounty_estimate += 500; reasons.append("Từ khóa bảo mật")
                   
-                  # 11. E-commerce - Nhiều lỗ hổng thanh toán
-                  ecommerce_keywords = ['shop', 'store', 'buy', 'sell', 'cart', 'checkout', 'payment', 'order']
+                  ecommerce_keywords = ['shop', 'store', 'buy', 'sell', 'cart', 'checkout', 'payment']
                   if any(x in domain for x in ecommerce_keywords):
-                      score += 12
-                      bounty_estimate += 800
-                      reasons.append("E-commerce - Lỗi thanh toán")
+                      score += 12; bounty_estimate += 800; reasons.append("E-commerce")
                   
-                  # 12. Healthcare - Dữ liệu nhạy cảm
-                  healthcare_keywords = ['health', 'medical', 'hospital', 'clinic', 'pharma', 'doctor', 'patient']
-                  if any(x in domain for x in healthcare_keywords):
-                      score += 15
-                      bounty_estimate += 1500
-                      reasons.append("Healthcare - Dữ liệu nhạy cảm")
-                  
-                  # 13. Domain có số lượng request lớn
-                  if 'api' in domain or 'graphql' in domain or 'rest' in domain:
-                      score += 10
-                      bounty_estimate += 500
-                      reasons.append("API/GraphQL - Nhiều lỗ hổng")
-                  
-                  # 14. Domain có từ khóa ngân hàng
-                  bank_keywords = ['bank', 'credit', 'loan', 'mortgage', 'savings', 'deposit', 'withdraw']
+                  bank_keywords = ['bank', 'credit', 'loan', 'mortgage', 'savings', 'deposit']
                   if any(x in domain for x in bank_keywords):
-                      score += 25
-                      bounty_estimate += 5000
-                      reasons.append("Ngân hàng - Bounty cực cao")
+                      score += 25; bounty_estimate += 5000; reasons.append("Ngân hàng")
                   
-                  # 15. Domain có từ khóa tiền điện tử
-                  crypto_keywords = ['btc', 'eth', 'usdt', 'usdc', 'dai', 'uni', 'aave', 'comp', 'mkr']
+                  crypto_keywords = ['btc', 'eth', 'usdt', 'usdc', 'dai', 'uni', 'aave', 'comp']
                   if any(x in domain for x in crypto_keywords):
-                      score += 30
-                      bounty_estimate += 10000
-                      reasons.append("Tiền điện tử - Bounty $1M")
+                      score += 30; bounty_estimate += 10000; reasons.append("Tiền điện tử")
                   
-                  # 16. Domain có từ khóa bảo hiểm
-                  insurance_keywords = ['insure', 'insurance', 'claim', 'policy', 'coverage', 'benefit']
-                  if any(x in domain for x in insurance_keywords):
-                      score += 12
-                      bounty_estimate += 800
-                      reasons.append("Bảo hiểm - Dữ liệu nhạy cảm")
-                  
-                  # 17. Domain có từ khóa giáo dục
-                  edu_keywords = ['edu', 'school', 'university', 'college', 'academy', 'learn', 'study']
-                  if any(x in domain for x in edu_keywords):
-                      score += 10
-                      bounty_estimate += 500
-                      reasons.append("Giáo dục - Dữ liệu sinh viên")
-                  
-                  # 18. Domain có từ khóa chính phủ
-                  gov_keywords = ['gov', 'state', 'federal', 'president', 'senate', 'congress', 'parliament']
+                  gov_keywords = ['gov', 'state', 'federal', 'president', 'senate', 'congress']
                   if any(x in domain for x in gov_keywords):
-                      score += 20
-                      bounty_estimate += 2000
-                      reasons.append("Chính phủ - Bounty cao")
+                      score += 20; bounty_estimate += 2000; reasons.append("Chính phủ")
                   
-                  # 19. Domain có từ khóa quân sự
-                  military_keywords = ['army', 'navy', 'airforce', 'military', 'defense', 'defence', 'pentagon']
+                  military_keywords = ['army', 'navy', 'airforce', 'military', 'defense', 'pentagon']
                   if any(x in domain for x in military_keywords):
-                      score += 25
-                      bounty_estimate += 5000
-                      reasons.append("Quân sự - Bounty cực cao")
+                      score += 25; bounty_estimate += 5000; reasons.append("Quân sự")
                   
-                  # 20. Domain có từ khóa công nghệ
-                  tech_keywords = ['tech', 'ai', 'ml', 'cloud', 'data', 'analytics', 'cyber', 'security', 'digital']
-                  if any(x in domain for x in tech_keywords):
-                      score += 8
-                      bounty_estimate += 300
-                      reasons.append("Công nghệ - Bounty cao")
-                  
-                  # Nhân với cấp độ AI
                   multiplier = 5 if self.ai_level == '10x' else 10 if self.ai_level == '20x' else 25
                   final_score = score * multiplier
                   
-                  # Xác định priority
-                  if final_score > 80:
-                      priority = 0  # Ưu tiên cao nhất - Web có tiền
-                  elif final_score > 50:
-                      priority = 1  # Ưu tiên cao
-                  elif final_score > 25:
-                      priority = 2  # Ưu tiên trung bình
-                  else:
-                      priority = 3  # Ưu tiên thấp
+                  if final_score > 80: priority = 0
+                  elif final_score > 50: priority = 1
+                  elif final_score > 25: priority = 2
+                  else: priority = 3
                   
                   return {
                       'score': int(final_score),
@@ -337,60 +224,34 @@ jobs:
                       'priority': priority,
                       'bounty_estimate': bounty_estimate,
                       'ai_level': self.ai_level,
-                      'has_money': bounty_estimate > 500  # Có tiền nếu bounty > $500
+                      'has_money': bounty_estimate > 500
                   }
               
               def predict_vulnerabilities(self, domain):
-                  """CHIP V10.0 dự đoán khả năng có lỗ hổng"""
                   vuln_probability = 0
-                  
-                  # Dựa trên domain
-                  if any(x in domain for x in ['wordpress', 'drupal', 'joomla']):
-                      vuln_probability += 40
-                  if any(x in domain for x in ['api', 'auth', 'login']):
-                      vuln_probability += 25
-                  if any(x in domain for x in ['bank', 'finance', 'pay']):
-                      vuln_probability += 30
-                  if any(x in domain for x in ['gov', 'edu', 'mil']):
-                      vuln_probability += 35
-                  if any(x in domain for x in ['crypto', 'blockchain', 'defi']):
-                      vuln_probability += 45
-                  if any(x in domain for x in ['shop', 'store', 'cart']):
-                      vuln_probability += 20
-                  
-                  # Dựa trên độ dài
-                  if len(domain) > 20:
-                      vuln_probability += 10
-                  
-                  # Dựa trên số lượng subdomain
-                  if domain.count('.') > 2:
-                      vuln_probability += 15
-                  
+                  if any(x in domain for x in ['wordpress', 'drupal', 'joomla']): vuln_probability += 40
+                  if any(x in domain for x in ['api', 'auth', 'login']): vuln_probability += 25
+                  if any(x in domain for x in ['bank', 'finance', 'pay']): vuln_probability += 30
+                  if any(x in domain for x in ['gov', 'edu', 'mil']): vuln_probability += 35
+                  if any(x in domain for x in ['crypto', 'blockchain', 'defi']): vuln_probability += 45
+                  if any(x in domain for x in ['shop', 'store', 'cart']): vuln_probability += 20
+                  if len(domain) > 20: vuln_probability += 10
+                  if domain.count('.') > 2: vuln_probability += 15
                   return min(vuln_probability, 98)
               
               def calculate_bounty_potential(self, domain, vuln_probability):
-                  """CHIP V10.0 tính toán tiềm năng bounty"""
                   base_bounty = 0
-                  
-                  if 'bank' in domain or 'finance' in domain:
-                      base_bounty = 5000
-                  elif 'crypto' in domain or 'blockchain' in domain:
-                      base_bounty = 10000
-                  elif 'gov' in domain or 'edu' in domain:
-                      base_bounty = 3000
-                  elif 'shop' in domain or 'store' in domain:
-                      base_bounty = 1000
-                  else:
-                      base_bounty = 500
-                  
-                  # Nhân với xác suất có lỗ hổng
-                  final_bounty = base_bounty * (vuln_probability / 100)
-                  
-                  return int(final_bounty)
-          
-          # ============================================================
-          # 2. CHIP V10.0 - WEB COLLECTOR TOÀN CẦU TỰ ĐỘNG
-          # ============================================================
+                  if 'bank' in domain or 'finance' in domain: base_bounty = 5000
+                  elif 'crypto' in domain or 'blockchain' in domain: base_bounty = 10000
+                  elif 'gov' in domain or 'edu' in domain: base_bounty = 3000
+                  elif 'shop' in domain or 'store' in domain: base_bounty = 1000
+                  else: base_bounty = 500
+                  return int(base_bounty * (vuln_probability / 100))
+          EOF
+
+      - name: 🌍 CHIP V10.0 - THU THẬP WEB
+        run: |
+          cat > chip_v10_part3.py << 'EOF'
           class GlobalWebCollectorV10:
               def __init__(self, chip, limit=100):
                   self.chip = chip
@@ -399,16 +260,14 @@ jobs:
                   self.seen = set()
                   self.sources_stats = {}
                   self.bounty_targets = []
-                  
+              
               def collect_from_source(self, name, domains, source_type):
-                  """CHIP V10.0 thu thập và phân tích từ nguồn"""
                   for domain in domains:
                       if domain not in self.seen:
                           self.seen.add(domain)
                           analysis = self.chip.analyze_web_value(domain)
                           vuln_prob = self.chip.predict_vulnerabilities(domain)
                           bounty = self.chip.calculate_bounty_potential(domain, vuln_prob)
-                          
                           self.targets.append({
                               'domain': domain,
                               'source': name,
@@ -420,26 +279,21 @@ jobs:
                               'bounty_estimate': bounty,
                               'has_money': analysis['has_money']
                           })
-                          
                           if analysis['has_money']:
                               self.bounty_targets.append(domain)
-                          
                           self.sources_stats[name] = self.sources_stats.get(name, 0) + 1
               
               def collect_from_hackerone(self):
-                  """CHIP V10.0 lấy từ HackerOne"""
-                  print("🔍 CHIP V10.0: HackerOne...")
+                  print("🔍 HackerOne...")
                   try:
                       url = "https://hackerone.com/programs/search?query=type:public"
-                      headers = {'User-Agent': 'ChipV10.0/10.0'}
-                      r = requests.get(url, timeout=30, headers=headers)
+                      r = requests.get(url, timeout=30, headers={'User-Agent': 'ChipV10.0'})
                       if r.status_code == 200:
                           soup = BeautifulSoup(r.text, 'html.parser')
                           domains = []
                           for link in soup.find_all('a', href=True):
                               if '/programs/' in link['href']:
-                                  parts = link['href'].split('/')
-                                  for part in parts:
+                                  for part in link['href'].split('/'):
                                       if '.' in part and len(part) > 3:
                                           domains.append(part.strip().lower())
                           self.collect_from_source('HackerOne', domains[:80], 'BugBounty')
@@ -447,12 +301,10 @@ jobs:
                       print(f"⚠️ Lỗi HackerOne: {e}")
               
               def collect_from_bugcrowd(self):
-                  """CHIP V10.0 lấy từ Bugcrowd"""
-                  print("🔍 CHIP V10.0: Bugcrowd...")
+                  print("🔍 Bugcrowd...")
                   try:
                       url = "https://bugcrowd.com/programs"
-                      headers = {'User-Agent': 'ChipV10.0/10.0'}
-                      r = requests.get(url, timeout=30, headers=headers)
+                      r = requests.get(url, timeout=30, headers={'User-Agent': 'ChipV10.0'})
                       if r.status_code == 200:
                           soup = BeautifulSoup(r.text, 'html.parser')
                           domains = []
@@ -467,171 +319,93 @@ jobs:
                       print(f"⚠️ Lỗi Bugcrowd: {e}")
               
               def collect_from_immunefi(self):
-                  """CHIP V10.0 lấy từ Immunefi"""
-                  print("🔍 CHIP V10.0: Immunefi...")
+                  print("🔍 Immunefi...")
                   try:
                       url = "https://immunefi.com/explore/"
-                      headers = {'User-Agent': 'ChipV10.0/10.0'}
-                      r = requests.get(url, timeout=30, headers=headers)
+                      r = requests.get(url, timeout=30, headers={'User-Agent': 'ChipV10.0'})
                       if r.status_code == 200:
                           soup = BeautifulSoup(r.text, 'html.parser')
                           domains = []
                           for link in soup.find_all('a', href=True):
                               if '/bounty/' in link['href']:
-                                  parts = link['href'].split('/')
-                                  for part in parts:
+                                  for part in link['href'].split('/'):
                                       if '.' in part and len(part) > 3:
                                           domains.append(part.strip().lower())
                           self.collect_from_source('Immunefi', domains[:50], 'Web3')
                   except Exception as e:
                       print(f"⚠️ Lỗi Immunefi: {e}")
-              
+          EOF
+
+      - name: 🌍 CHIP V10.0 - WEB TOÀN CẦU
+        run: |
+          cat > chip_v10_part4.py << 'EOF'
+          class GlobalWebCollectorV10:
               def collect_from_top_global(self):
-                  """CHIP V10.0 lấy Top Global Websites"""
-                  print("🔍 CHIP V10.0: Top Global...")
+                  print("🔍 Top Global...")
                   top_websites = [
-                      # USA - Top 20
                       'google.com', 'youtube.com', 'facebook.com', 'twitter.com', 'instagram.com',
                       'linkedin.com', 'reddit.com', 'netflix.com', 'amazon.com', 'ebay.com',
                       'microsoft.com', 'apple.com', 'adobe.com', 'salesforce.com', 'oracle.com',
                       'ibm.com', 'cisco.com', 'intel.com', 'nvidia.com', 'amd.com',
-                      # Europe - Top 20
                       'bbc.com', 'guardian.co.uk', 'reuters.com', 'bloomberg.com', 'ft.com',
                       'lemonde.fr', 'elpais.com', 'bild.de', 'corriere.it', 'tass.com',
-                      'spiegel.de', 'welt.de', 'sueddeutsche.de', 'faz.net', 'tagesschau.de',
-                      'lefigaro.fr', 'liberation.fr', 'leparisien.fr', 'lexpress.fr', 'lepoint.fr',
-                      # Asia - Top 20
                       'alibaba.com', 'tencent.com', 'baidu.com', 'jd.com', 'xiaomi.com',
-                      'naver.com', 'kakao.com', 'line.me', 'rakuten.co.jp', 'yahoo.co.jp',
-                      'shoppee.sg', 'lazada.com', 'grab.com', 'gojek.com', 'tokopedia.com',
-                      'amazon.co.jp', 'qq.com', 'taobao.com', 'tmall.com', 'weibo.com',
-                      # South America - Top 10
-                      'mercadolivre.com', 'globo.com', 'clarin.com', 'eluniversal.com.mx', 'televisa.com',
-                      'uol.com.br', 'terra.com.br', 'folha.uol.com.br', 'estadao.com.br', 'milenio.com',
-                      # Africa - Top 10
-                      'naspers.com', 'mtn.com', 'vodacom.com', 'safaricom.com', 'standardmedia.co.ke',
-                      'iol.co.za', 'news24.com', 'timeslive.co.za', 'citizentv.co.ke', 'nation.co.ke',
-                      # Oceania - Top 10
-                      'seek.com.au', 'realestate.com.au', 'news.com.au', 'smh.com.au', 'stuff.co.nz',
-                      'domain.com.au', 'carsales.com.au', 'gumtree.com.au', 'theage.com.au', 'theaustralian.com.au'
+                      'naver.com', 'kakao.com', 'line.me', 'rakuten.co.jp', 'yahoo.co.jp'
                   ]
                   self.collect_from_source('TopGlobal', top_websites, 'Popular')
               
               def collect_from_asia(self):
-                  """CHIP V10.0 lấy Web Châu Á"""
-                  print("🔍 CHIP V10.0: Châu Á...")
+                  print("🔍 Châu Á...")
                   asia_websites = [
-                      # Japan
-                      'google.co.jp', 'amazon.co.jp', 'rakuten.co.jp', 'yahoo.co.jp', 'live.com',
-                      'wikipedia.org', 'facebook.com', 'twitter.com', 'instagram.com', 'youtube.com',
-                      # China
+                      'google.co.jp', 'amazon.co.jp', 'rakuten.co.jp', 'yahoo.co.jp',
                       'baidu.com', 'qq.com', 'taobao.com', 'tmall.com', 'jd.com',
                       'weibo.com', 'sohu.com', '163.com', 'sina.com.cn', 'xinhuanet.com',
-                      # South Korea
                       'naver.com', 'kakao.com', 'daum.net', 'chosun.com', 'joongang.co.kr',
-                      'hankyung.com', 'mk.co.kr', 'donga.com', 'seoul.co.kr', 'koreatimes.co.kr',
-                      # India
                       'google.co.in', 'amazon.in', 'flipkart.com', 'snapdeal.com', 'paytm.com',
-                      'olx.in', 'quora.com', 'timesofindia.com', 'hindustantimes.com', 'ndtv.com',
-                      # Southeast Asia
                       'shopee.sg', 'lazada.com', 'tokopedia.com', 'bukalapak.com', 'gojek.com',
-                      'grab.com', 'traveloka.com', 'agoda.com', 'booking.com', 'airbnb.com',
-                      'vietnamnet.vn', 'zingnews.vn', 'tiki.vn', 'shopee.vn', 'fpt.vn'
+                      'grab.com', 'traveloka.com', 'agoda.com', 'booking.com', 'airbnb.com'
                   ]
                   self.collect_from_source('Asia', asia_websites, 'Regional')
               
               def collect_from_europe(self):
-                  """CHIP V10.0 lấy Web Châu Âu"""
-                  print("🔍 CHIP V10.0: Châu Âu...")
+                  print("🔍 Châu Âu...")
                   europe_websites = [
-                      # UK
                       'bbc.com', 'guardian.co.uk', 'sky.com', 'itv.com', 'channel4.com',
-                      'dailymail.co.uk', 'mirror.co.uk', 'thesun.co.uk', 'telegraph.co.uk',
-                      # Germany
                       'spiegel.de', 'bild.de', 'welt.de', 'sueddeutsche.de', 'faz.net',
-                      'tagesschau.de', 'zdf.de', 'ard.de', 'stern.de', 'focus.de',
-                      # France
                       'lemonde.fr', 'lefigaro.fr', 'liberation.fr', 'leparisien.fr', 'lexpress.fr',
-                      'lepoint.fr', 'la-croix.com', 'lequipe.fr', 'orange.fr', 'free.fr',
-                      # Italy
                       'corriere.it', 'repubblica.it', 'gazzetta.it', 'ilmessaggero.it', 'lastampa.it',
-                      'ansa.it', 'rai.it', 'mediaset.it', 'sky.it', 'libero.it',
-                      # Spain
                       'elpais.com', 'elmundo.es', 'abc.es', 'lavanguardia.com', 'elconfidencial.com',
-                      'marca.com', 'as.com', 'mundodeportivo.com', 'rtve.es', 'telecinco.es',
-                      # Russia
-                      'tass.com', 'rt.com', 'sputniknews.com', 'mail.ru', 'yandex.ru',
-                      'vk.com', 'ok.ru', 'rbc.ru', 'kommersant.ru', 'vedomosti.ru'
+                      'tass.com', 'rt.com', 'sputniknews.com', 'mail.ru', 'yandex.ru'
                   ]
                   self.collect_from_source('Europe', europe_websites, 'Regional')
               
               def collect_from_americas(self):
-                  """CHIP V10.0 lấy Web Châu Mỹ"""
-                  print("🔍 CHIP V10.0: Châu Mỹ...")
+                  print("🔍 Châu Mỹ...")
                   americas_websites = [
-                      # USA Top Sites
                       'google.com', 'youtube.com', 'facebook.com', 'amazon.com', 'twitter.com',
                       'instagram.com', 'linkedin.com', 'reddit.com', 'netflix.com', 'ebay.com',
                       'microsoft.com', 'apple.com', 'adobe.com', 'salesforce.com', 'oracle.com',
-                      'ibm.com', 'cisco.com', 'intel.com', 'nvidia.com', 'amd.com',
-                      # Canada
                       'cbc.ca', 'ctvnews.ca', 'globalnews.ca', 'thestar.com', 'torontosun.com',
-                      'vancouversun.com', 'calgaryherald.com', 'ottawacitizen.com', 'montrealgazette.com',
-                      # Brazil
                       'globo.com', 'uol.com.br', 'terra.com.br', 'folha.uol.com.br', 'estadao.com.br',
-                      'otempo.com.br', 'em.com.br', 'diariodepernambuco.com.br', 'jornaldacidade.com',
-                      # Mexico
                       'televisa.com', 'univision.com', 'milenio.com', 'eluniversal.com.mx', 'excelsior.com.mx',
-                      'jornada.com.mx', 'aristeguinoticias.com', 'sdpnoticias.com', 'lopez-doriga.com',
-                      # Argentina
-                      'clarin.com', 'lanacion.com.ar', 'infobae.com', 'pagina12.com.ar', 'perfil.com',
-                      'ambito.com', 'cronista.com', 'eltribuno.com', 'losandes.com.ar', 'diariouno.com.ar'
+                      'clarin.com', 'lanacion.com.ar', 'infobae.com', 'pagina12.com.ar', 'perfil.com'
                   ]
                   self.collect_from_source('Americas', americas_websites, 'Regional')
               
               def collect_from_vietnam(self):
-                  """CHIP V10.0 lấy Web Việt Nam"""
-                  print("🔍 CHIP V10.0: Việt Nam...")
+                  print("🔍 Việt Nam...")
                   vietnam_websites = [
                       'vietnamnet.vn', 'zingnews.vn', 'kenh14.vn', 'tinhte.vn',
                       'tiki.vn', 'shopee.vn', 'fpt.vn', 'viettel.vn',
                       'thegioididong.com', 'cellphones.com.vn', 'dienmayxanh.com',
                       'tuoitre.vn', 'thanhnien.vn', 'vtc.vn', 'vnexpress.net',
                       'nld.com.vn', 'cafef.vn', 'genk.vn', 'soha.vn',
-                      'dantri.com.vn', 'baomoi.com', 'vov.vn', 'qlns.vn',
-                      'moit.gov.vn', 'mof.gov.vn', 'mic.gov.vn', 'chinhphu.vn'
+                      'dantri.com.vn', 'baomoi.com', 'vov.vn', 'chinhphu.vn'
                   ]
                   self.collect_from_source('Vietnam', vietnam_websites, 'Local')
               
               def collect_from_google_dork(self):
-                  """CHIP V10.0 - Tìm web bằng Google Dork tự động"""
-                  print("🔍 CHIP V10.0: Google Dork - Tìm web có lỗ hổng...")
-                  dork_keywords = [
-                      'inurl:login', 'inurl:admin', 'inurl:api', 'inurl:panel',
-                      'intitle:admin', 'intitle:login', 'intitle:control',
-                      'inurl:wp-admin', 'inurl:wp-login', 'inurl:administrator',
-                      'inurl:cpanel', 'inurl:webmail', 'inurl:webmin',
-                      'inurl:phpmyadmin', 'inurl:mysql', 'inurl:postgres'
-                  ]
-                  
-                  # Dùng các nguồn dữ liệu mở thay vì Google API
-                  try:
-                      # Sử dụng CommonCrawl để tìm web
-                      url = "https://index.commoncrawl.org/CC-MAIN-2024-10/index?url=*.com&output=json"
-                      r = requests.get(url, timeout=15)
-                      if r.status_code == 200:
-                          data = r.json()
-                          domains = []
-                          for item in data.get('items', [])[:20]:
-                              if 'url' in item:
-                                  domain = item['url'].replace('http://', '').replace('https://', '').split('/')[0]
-                                  if domain:
-                                      domains.append(domain)
-                          self.collect_from_source('CommonCrawl', domains, 'Crawler')
-                  except:
-                      pass
-                  
-                  # Sử dụng danh sách web có lỗ hổng từ các nguồn mở
+                  print("🔍 Google Dork...")
                   try:
                       url = "https://raw.githubusercontent.com/mehulj94/top-1m/master/top-1m.txt"
                       r = requests.get(url, timeout=10)
@@ -642,30 +416,18 @@ jobs:
                       pass
               
               def get_best_targets_with_money(self):
-                  """CHIP V10.0 - Chọn web có tiền và có lỗ hổng"""
-                  # Ưu tiên web có tiền (bounty > $500) và có lỗ hổng
                   money_targets = [t for t in self.targets if t.get('has_money', False)]
                   normal_targets = [t for t in self.targets if not t.get('has_money', False)]
-                  
-                  # Sắp xếp theo score + bounty
                   money_targets.sort(key=lambda x: (x['score'] + x.get('bounty_estimate', 0) / 100), reverse=True)
                   normal_targets.sort(key=lambda x: x['score'], reverse=True)
-                  
-                  # Lấy 30% từ money_targets, 70% từ normal_targets
                   money_count = min(int(self.limit * 0.3), len(money_targets))
                   normal_count = self.limit - money_count
-                  
                   selected = money_targets[:money_count] + normal_targets[:normal_count]
-                  
-                  # Đảm bảo đủ limit
                   if len(selected) < self.limit:
-                      remaining = self.limit - len(selected)
-                      selected.extend(normal_targets[normal_count:normal_count+remaining])
-                  
+                      selected.extend(normal_targets[normal_count:normal_count + self.limit - len(selected)])
                   return selected[:self.limit]
               
               def scan_all_sources(self):
-                  """CHIP V10.0 - Quét tất cả nguồn tự động"""
                   print("\n🌍 CHIP V10.0 ĐANG QUÉT TOÀN CẦU...")
                   self.collect_from_hackerone()
                   self.collect_from_bugcrowd()
@@ -676,146 +438,97 @@ jobs:
                   self.collect_from_americas()
                   self.collect_from_vietnam()
                   self.collect_from_google_dork()
-                  
-                  print(f"\n📊 TỔNG WEB TÌM THẤY: {len(self.targets)}")
+                  print(f"\n📊 TỔNG WEB: {len(self.targets)}")
                   print(f"💰 WEB CÓ TIỀN: {len(self.bounty_targets)}")
-                  
                   return self.get_best_targets_with_money()
+          EOF
+
+      - name: 🌍 CHIP V10.0 - CHẠY TÌM WEB
+        id: get_targets
+        run: |
+          echo "🌌 CHIP V10.0 CHỦ QUYỀN ĐANG TÌM WEB TOÀN CẦU..."
           
-          # ============================================================
-          # 3. MAIN - CHIP V10.0 HOẠT ĐỘNG
-          # ============================================================
-          print("="*80)
-          print("🔌 CHIP V10.0 CHỦ QUYỀN VŨ TRỤ - ĐANG HOẠT ĐỘNG")
-          print("="*80)
+          cat > chip_v10_run.py << 'EOF'
+          import json, sys
+          from chip_v10_part1 import ChipV10 as ChipV10Base
+          from chip_v10_part2 import ChipV10 as ChipV10Analyze
+          from chip_v10_part3 import GlobalWebCollectorV10 as CollectorBase
+          from chip_v10_part4 import GlobalWebCollectorV10 as CollectorFull
           
-          # Đọc lịch sử
+          class ChipV10(ChipV10Base, ChipV10Analyze):
+              pass
+          
+          class GlobalWebCollectorV10(CollectorBase, CollectorFull):
+              pass
+          
           try:
               with open('history.json', 'r') as f:
                   history = json.load(f)
           except:
               history = {'scanned': [], 'high_value': [], 'fixed_cves': []}
           
-          # Khởi tạo CHIP V10.0
           target_limit = int(${{ github.event.inputs.target_count || '100' }})
           chip = ChipV10(ai_level='${{ github.event.inputs.ai_level || '20x' }}')
           collector = GlobalWebCollectorV10(chip, target_limit)
-          
-          # CHIP V10.0 tự động quét toàn cầu
           best_targets = collector.scan_all_sources()
           
-          # Lưu target
           with open('targets.txt', 'w') as f:
               for t in best_targets:
                   domain = t['domain']
                   if not domain.startswith('http'):
                       domain = 'https://' + domain
-                  money_symbol = "💰" if t.get('has_money', False) else "🔍"
-                  f.write(f"{domain}  # {t['source']} | Score: {t['score']} | Vuln: {t['vuln_probability']}% | Bounty: ${t.get('bounty_estimate', 0)} | {', '.join(t['reasons'][:2])}\n")
+                  f.write(f"{domain}  # {t['source']} | Score: {t['score']} | Vuln: {t['vuln_probability']}% | Bounty: ${t.get('bounty_estimate', 0)}\n")
           
-          # Lưu lịch sử
           for t in best_targets:
               if t['domain'] not in history['scanned']:
                   history['scanned'].append(t['domain'])
-          
-          # Lưu web có tiền
-          for t in best_targets:
               if t.get('has_money', False) and t['domain'] not in history['high_value']:
                   history['high_value'].append(t['domain'])
           
           with open('history.json', 'w') as f:
               json.dump(history, f, indent=2)
           
-          # In kết quả
           print("\n" + "="*80)
-          print("💰 CHIP V10.0 - TOP WEB CÓ TIỀN NHẤT:")
+          print("💰 CHIP V10.0 - TOP WEB CÓ TIỀN:")
           print("="*80)
           money_targets = [t for t in best_targets if t.get('has_money', False)]
           for i, t in enumerate(money_targets[:20], 1):
               print(f"{i:2}. {t['domain']} - 💰 ${t.get('bounty_estimate', 0)}")
-              print(f"    Score: {t['score']} | Vuln: {t['vuln_probability']}%")
-              print(f"    Source: {t['source']} | {', '.join(t['reasons'][:2])}")
-              print("")
-          
           print("="*80)
-          print(f"✅ TỔNG WEB: {len(best_targets)}")
-          print(f"💰 WEB CÓ TIỀN: {len(money_targets)}")
-          print(f"🌍 CHÂU LỤC: Châu Á, Châu Âu, Châu Mỹ, Toàn cầu")
-          print("🔌 CHIP V10.0 - 100% TỰ ĐỘNG HÓA")
+          print(f"✅ TỔNG: {len(best_targets)} WEB | 💰 CÓ TIỀN: {len(money_targets)}")
           print("="*80)
-          PYEOF
+          EOF
           
-          python3 chip_v10_finder.py
+          python3 chip_v10_run.py
           
           TARGET_COUNT=$(wc -l < targets.txt)
           echo "🎯 SỐ MỤC TIÊU: $TARGET_COUNT"
           echo "target_count=$TARGET_COUNT" >> $GITHUB_ENV
           
-          echo "📋 DANH SÁCH WEB (30 MỤC ĐẦU):"
-          head -30 targets.txt
+          echo "📋 DANH SÁCH WEB (20 MỤC ĐẦU):"
+          head -20 targets.txt
 
-      - name: 🔍 CHIP V10.0 - QUÉT VŨ TRỤ TỐI ƯU
+      - name: 🔍 CHIP V10.0 - QUÉT VŨ TRỤ
         timeout-minutes: 240
         run: |
           echo "⏰ CHIP V10.0 BẮT ĐẦU: $(date)"
           echo "🎯 MỤC TIÊU: ${{ env.target_count }}"
-          echo "📊 MỨC ĐỘ: ${{ github.event.inputs.severity_level || 'critical,high,medium,low,info' }}"
-          echo "🚀 CHẾ ĐỘ: ${{ github.event.inputs.scan_mode || 'ultimate' }}"
           
           export PATH=$PATH:/usr/local/go/bin
           
-          echo "🔍 CHIP V10.0 KIỂM TRA NUCLEI..."
-          nuclei -version
-          
-          # CHIP V10.0 tự động tối ưu thông số
           if [ "${{ github.event.inputs.target_count }}" -le 50 ]; then
-              CONCURRENCY=60
-              BULK_SIZE=25
-              RATE_LIMIT=25
-              TIMEOUT=12
-              RETRIES=3
-              MAX_REDIRECTS=5
+              CONCURRENCY=60; BULK_SIZE=25; RATE_LIMIT=25; TIMEOUT=12; RETRIES=3; MAX_REDIRECTS=5
           elif [ "${{ github.event.inputs.target_count }}" -le 100 ]; then
-              CONCURRENCY=100
-              BULK_SIZE=40
-              RATE_LIMIT=40
-              TIMEOUT=18
-              RETRIES=4
-              MAX_REDIRECTS=7
+              CONCURRENCY=100; BULK_SIZE=40; RATE_LIMIT=40; TIMEOUT=18; RETRIES=4; MAX_REDIRECTS=7
           elif [ "${{ github.event.inputs.target_count }}" -le 200 ]; then
-              CONCURRENCY=150
-              BULK_SIZE=75
-              RATE_LIMIT=0
-              TIMEOUT=25
-              RETRIES=5
-              MAX_REDIRECTS=10
+              CONCURRENCY=150; BULK_SIZE=75; RATE_LIMIT=0; TIMEOUT=25; RETRIES=5; MAX_REDIRECTS=10
           elif [ "${{ github.event.inputs.target_count }}" -le 500 ]; then
-              CONCURRENCY=200
-              BULK_SIZE=100
-              RATE_LIMIT=80
-              TIMEOUT=30
-              RETRIES=5
-              MAX_REDIRECTS=10
+              CONCURRENCY=200; BULK_SIZE=100; RATE_LIMIT=80; TIMEOUT=30; RETRIES=5; MAX_REDIRECTS=10
           else
-              CONCURRENCY=250
-              BULK_SIZE=120
-              RATE_LIMIT=120
-              TIMEOUT=35
-              RETRIES=6
-              MAX_REDIRECTS=12
+              CONCURRENCY=250; BULK_SIZE=120; RATE_LIMIT=120; TIMEOUT=35; RETRIES=6; MAX_REDIRECTS=12
           fi
           
-          echo "⚙️ CHIP V10.0 ĐIỀU KHIỂN:"
-          echo "⚙️ CONCURRENCY: $CONCURRENCY"
-          echo "⚙️ BULK_SIZE: $BULK_SIZE"
-          echo "⚙️ RATE_LIMIT: $RATE_LIMIT"
-          echo "⚙️ TIMEOUT: $TIMEOUT"
-          echo "⚙️ RETRIES: $RETRIES"
-          echo "⚙️ MAX_REDIRECTS: $MAX_REDIRECTS"
-          echo "🔌 STABILITY: 100% ỔN ĐỊNH"
-          echo "⚡ POWER: 100% SỨC MẠNH"
-          
-          echo "🚀 CHIP V10.0 BẮT ĐẦU QUÉT VŨ TRỤ..."
+          echo "⚙️ CONCURRENCY: $CONCURRENCY | BULK_SIZE: $BULK_SIZE | RATE_LIMIT: $RATE_LIMIT"
           
           nuclei \
             -list targets.txt \
@@ -833,10 +546,9 @@ jobs:
             -retries $RETRIES \
             -max-redirects $MAX_REDIRECTS \
             -follow-redirects \
-            -tags cve,kev,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,cloud,web3,blockchain,defi,bank,finance \
+            -tags cve,kev,exposure,wordpress,drupal,joomla,magento,opensource,aws,azure,cloud,web3,blockchain,defi \
             -exclude-tags "miscellaneous,takeover,panel" \
-            -stats \
-            -stats-interval 10 \
+            -stats -stats-interval 10 \
             -rdb report.db \
             -json-export results.json \
             -jle results.jsonl \
@@ -845,51 +557,23 @@ jobs:
             -disable-update-check \
             -max-host-error 20 \
             -no-mhe \
-            -project \
-            -project-path /tmp/nuclei-project \
-            2>&1 | tee scan.log
-          
-          echo "=================================================="
-          echo "📊 CHIP V10.0 KẾT QUẢ QUÉT VŨ TRỤ:"
-          echo "=================================================="
+            -project -project-path /tmp/nuclei-project 2>&1 | tee scan.log
           
           if [ -f results.txt ]; then
-              TOTAL=$(cat results.txt | wc -l)
-              echo "📦 TỔNG SỐ LỖI: $TOTAL"
-          else
-              echo "📦 TỔNG SỐ LỖI: 0"
+              echo "📦 TỔNG LỖI: $(cat results.txt | wc -l)"
           fi
-          
           if [ -f results.json ]; then
-              CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
-              HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
-              MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
-              LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)
-              INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)
-              
-              echo "🔥 CRITICAL: $CRITICAL"
-              echo "⚡ HIGH: $HIGH"
-              echo "🟡 MEDIUM: $MEDIUM"
-              echo "🟢 LOW: $LOW"
-              echo "ℹ️ INFO: $INFO"
+              echo "🔥 CRITICAL: $(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)"
+              echo "⚡ HIGH: $(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)"
           fi
-          echo "=================================================="
           
-          if [ ! -f results.json ]; then
-              echo '[]' > results.json
-          fi
-          if [ ! -f results.txt ]; then
-              echo "Không tìm thấy lỗ hổng nào" > results.txt
-          fi
+          if [ ! -f results.json ]; then echo '[]' > results.json; fi
+          if [ ! -f results.txt ]; then echo "Không tìm thấy lỗ hổng" > results.txt; fi
 
-      - name: 📊 CHIP V10.0 - PHÂN TÍCH LỖI THÔNG MINH
+      - name: 📊 CHIP V10.0 - PHÂN TÍCH LỖI
         if: always()
         run: |
-          echo "🧠 CHIP V10.0 CHỦ QUYỀN ĐANG PHÂN TÍCH LỖI..."
-          
-          if [ ! -f results.json ]; then
-              echo '[]' > results.json
-          fi
+          if [ ! -f results.json ]; then echo '[]' > results.json; fi
           
           if [ -f history.json ]; then
               FIXED_CVES=$(jq -r '.fixed_cves[]' history.json 2>/dev/null | tr '\n' '|' | sed 's/|$//')
@@ -905,391 +589,123 @@ jobs:
             end
           ' results.json 2>/dev/null > unfixed_results.json || echo '[]' > unfixed_results.json
           
-          cat > chip_v10_analyzer.py << 'PYEOF'
+          python3 << 'EOF'
           import json
-          from datetime import datetime
-          
-          # Đọc kết quả
           try:
-              with open('results.json', 'r') as f:
-                  data = json.load(f)
-          except:
-              data = []
-          
+              with open('results.json', 'r') as f: data = json.load(f)
+          except: data = []
           try:
-              with open('unfixed_results.json', 'r') as f:
-                  unfixed = json.load(f)
-          except:
-              unfixed = []
+              with open('unfixed_results.json', 'r') as f: unfixed = json.load(f)
+          except: unfixed = []
           
-          print("🧠 CHIP V10.0 CHỦ QUYỀN ĐANG PHÂN TÍCH...")
-          
-          # Thống kê chi tiết
-          total = len(data)
-          unfixed_count = len(unfixed)
+          total = len(data); unfixed_count = len(unfixed)
           critical = len([x for x in data if x.get('info', {}).get('severity') == 'critical'])
           high = len([x for x in data if x.get('info', {}).get('severity') == 'high'])
           medium = len([x for x in data if x.get('info', {}).get('severity') == 'medium'])
-          low = len([x for x in data if x.get('info', {}).get('severity') == 'low'])
-          info = len([x for x in data if x.get('info', {}).get('severity') == 'info'])
           
-          # Đánh giá rủi ro - CHIP V10.0
           risk_score = critical * 10 + high * 5 + medium * 2
-          if risk_score > 80:
-              risk_level = "🔴 CỰC KỲ CAO"
-              recommendation = "XỬ LÝ NGAY LẬP TỨC - CÓ THỂ BỊ TẤN CÔNG BẤT CỨ LÚC NÀO"
-              urgency = "⚠️ KHẨN CẤP NHẤT"
-          elif risk_score > 50:
-              risk_level = "🟠 CAO"
-              recommendation = "XỬ LÝ TRONG 24 GIỜ - RỦI RO TẤN CÔNG CAO"
-              urgency = "⚡ KHẨN CẤP"
-          elif risk_score > 25:
-              risk_level = "🟡 TRUNG BÌNH"
-              recommendation = "XỬ LÝ TRONG 7 NGÀY - CẦN ĐƯỢC VÁ"
-              urgency = "📋 BÌNH THƯỜNG"
-          elif risk_score > 10:
-              risk_level = "🟢 THẤP"
-              recommendation = "XEM XÉT KHI CÓ THỜI GIAN"
-              urgency = "📌 THẤP"
-          else:
-              risk_level = "⚪ RẤT THẤP"
-              recommendation = "KHÔNG CẦN XỬ LÝ NGAY"
-              urgency = "✅ AN TOÀN"
+          if risk_score > 80: risk_level = "🔴 CỰC CAO"; urgency = "⚠️ KHẨN CẤP"
+          elif risk_score > 50: risk_level = "🟠 CAO"; urgency = "⚡ KHẨN"
+          elif risk_score > 25: risk_level = "🟡 TRUNG BÌNH"; urgency = "📋 BÌNH THƯỜNG"
+          else: risk_level = "🟢 THẤP"; urgency = "✅ AN TOÀN"
           
-          # Dự đoán giá trị bounty - CHIP V10.0
-          estimated_bounty = critical * 5000 + high * 1000 + medium * 200 + low * 50
+          estimated_bounty = critical * 5000 + high * 1000 + medium * 200
           
-          print("="*70)
-          print("🔌 CHIP V10.0 - KẾT QUẢ PHÂN TÍCH CHỦ QUYỀN")
-          print("="*70)
-          print(f"📦 TỔNG LỖI PHÁT HIỆN: {total}")
-          print(f"🔥 CRITICAL: {critical} (💰 $5,000+ mỗi lỗi)")
-          print(f"⚡ HIGH: {high} (💰 $1,000+ mỗi lỗi)")
-          print(f"🟡 MEDIUM: {medium} (💰 $200+ mỗi lỗi)")
-          print(f"🟢 LOW: {low} (💰 $50+ mỗi lỗi)")
-          print(f"ℹ️ INFO: {info} (💰 Có thể dẫn đến lỗi lớn)")
-          print("-"*70)
-          print(f"🔥 LỖI CHƯA VÁ: {unfixed_count}")
-          print(f"📊 RISK SCORE: {risk_score}")
-          print(f"⚠️ RISK LEVEL: {risk_level}")
-          print(f"⚡ URGENCY: {urgency}")
-          print(f"💰 ƯỚC TÍNH BOUNTY: ${estimated_bounty:,}")
-          print(f"📋 KHUYẾN NGHỊ: {recommendation}")
-          print("="*70)
-          
-          # Lưu phân tích
           with open('chip_v10_analysis.json', 'w') as f:
               json.dump({
-                  'total': total,
-                  'critical': critical,
-                  'high': high,
-                  'medium': medium,
-                  'low': low,
-                  'info': info,
-                  'unfixed': unfixed_count,
-                  'risk_score': risk_score,
-                  'risk_level': risk_level,
-                  'urgency': urgency,
+                  'total': total, 'critical': critical, 'high': high, 'medium': medium,
+                  'unfixed': unfixed_count, 'risk_score': risk_score,
+                  'risk_level': risk_level, 'urgency': urgency,
                   'estimated_bounty': estimated_bounty,
-                  'recommendation': recommendation,
-                  'timestamp': datetime.now().isoformat(),
-                  'chip_version': 'V10.0',
-                  'power': '100%',
-                  'automation': '100%'
+                  'chip_version': 'V10.0', 'power': '100%', 'automation': '100%'
               }, f, indent=2)
           
-          print("✅ CHIP V10.0 PHÂN TÍCH HOÀN TẤT!")
-          PYEOF
-          
-          python3 chip_v10_analyzer.py
-          
-          TOTAL_UNFIXED=$(jq -s 'length' unfixed_results.json 2>/dev/null || echo 0)
-          CRITICAL_UNFIXED=$(jq -r 'select(.info.severity=="critical")' unfixed_results.json 2>/dev/null | wc -l || echo 0)
-          HIGH_UNFIXED=$(jq -r 'select(.info.severity=="high")' unfixed_results.json 2>/dev/null | wc -l || echo 0)
-          ESTIMATED_BOUNTY=$(jq -r '.estimated_bounty' chip_v10_analysis.json 2>/dev/null || echo 0)
-          URGENCY=$(jq -r '.urgency' chip_v10_analysis.json 2>/dev/null || echo "N/A")
-          
-          echo "✅ CHIP V10.0 ĐÃ LỌC XONG LỖI CHƯA VÁ!"
+          print("="*60)
+          print("🔌 CHIP V10.0 - KẾT QUẢ PHÂN TÍCH")
+          print("="*60)
+          print(f"📦 TỔNG LỖI: {total}")
+          print(f"🔥 CRITICAL: {critical} (💰 $5,000+)")
+          print(f"⚡ HIGH: {high} (💰 $1,000+)")
+          print(f"🟡 MEDIUM: {medium} (💰 $200+)")
+          print(f"🔥 LỖI CHƯA VÁ: {unfixed_count}")
+          print(f"📊 RISK SCORE: {risk_score} - {risk_level}")
+          print(f"💰 ƯỚC TÍNH BOUNTY: ${estimated_bounty:,}")
+          print("="*60)
+          EOF
 
-      - name: 📄 CHIP V10.0 - TẠO BÁO CÁO SIÊU CẤP
+      - name: 📄 CHIP V10.0 - TẠO BÁO CÁO
         if: always()
         run: |
-          echo "📄 CHIP V10.0 ĐANG TẠO BÁO CÁO SIÊU CẤP..."
-          
           TOTAL=$(jq -s 'length' results.json 2>/dev/null || echo 0)
           CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
           HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
           MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
-          LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)
-          INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)
-          
           TOTAL_UNFIXED=$(jq -s 'length' unfixed_results.json 2>/dev/null || echo 0)
-          CRITICAL_UNFIXED=$(jq -r 'select(.info.severity=="critical")' unfixed_results.json 2>/dev/null | wc -l || echo 0)
-          HIGH_UNFIXED=$(jq -r 'select(.info.severity=="high")' unfixed_results.json 2>/dev/null | wc -l || echo 0)
-          
           TARGET_COUNT=$(cat targets.txt 2>/dev/null | wc -l || echo 0)
           
           if [ -f chip_v10_analysis.json ]; then
               RISK_LEVEL=$(jq -r '.risk_level' chip_v10_analysis.json 2>/dev/null || echo "N/A")
               RISK_SCORE=$(jq -r '.risk_score' chip_v10_analysis.json 2>/dev/null || echo 0)
               ESTIMATED_BOUNTY=$(jq -r '.estimated_bounty' chip_v10_analysis.json 2>/dev/null || echo 0)
-              URGENCY=$(jq -r '.urgency' chip_v10_analysis.json 2>/dev/null || echo "N/A")
           else
-              RISK_LEVEL="N/A"
-              RISK_SCORE=0
-              ESTIMATED_BOUNTY=0
-              URGENCY="N/A"
+              RISK_LEVEL="N/A"; RISK_SCORE=0; ESTIMATED_BOUNTY=0
           fi
           
-          cat > CHIP_V10_REPORT.txt << 'EOFREPORT'
+          cat > CHIP_V10_REPORT.txt << EOF
           ╔══════════════════════════════════════════════════════════════════════════════╗
-          ║                                                                            ║
           ║       🔌 CHIP V10.0 - CHỦ QUYỀN VŨ TRỤ - SIÊU TRÍ TUỆ 50X                ║
-          ║                                                                            ║
           ╚══════════════════════════════════════════════════════════════════════════════╝
           
-          ┌─────────────────────────────────────────────────────────────────────────────┐
-          │ 📅 THỜI GIAN: $(date '+%Y-%m-%d %H:%M:%S')                                  │
-          │ 🔄 LẦN QUÉT: #${{ github.run_number }}                                      │
-          │ 📊 MỨC ĐỘ: ${{ github.event.inputs.severity_level || 'critical,high,medium,low,info' }} │
-          │ 🚀 CHẾ ĐỘ: ${{ github.event.inputs.scan_mode || 'ultimate' }}               │
-          │ 🧠 AI LEVEL: ${{ github.event.inputs.ai_level || '20x' }}                   │
-          │ 🎯 SỐ WEB: $TARGET_COUNT                                                    │
-          │ 🌍 PHẠM VI: TOÀN CẦU - CHÂU Á, ÂU, MỸ, TOÀN CẦU                            │
-          │ 🔌 CHIP VERSION: V10.0 CHỦ QUYỀN                                           │
-          │ ⚡ SỨC MẠNH: 100%                                                           │
-          │ 🔋 TỰ ĐỘNG HÓA: 100%                                                        │
-          └─────────────────────────────────────────────────────────────────────────────┘
+          📅 THỜI GIAN: $(date '+%Y-%m-%d %H:%M:%S')
+          🔄 LẦN QUÉT: #${{ github.run_number }}
+          🎯 SỐ WEB: $TARGET_COUNT
+          🔌 CHIP VERSION: V10.0 | ⚡ POWER: 100% | 🔋 AUTOMATION: 100%
           
           ════════════════════════════════════════════════════════════════════════════════
-          📊 TÓM TẮT NHANH - CHIP V10.0 CHỦ QUYỀN
+          📊 TÓM TẮT NHANH
           ════════════════════════════════════════════════════════════════════════════════
+          🔥 CRITICAL: $CRITICAL  (💰 \$5,000+/lỗi)
+          ⚡ HIGH: $HIGH          (💰 \$1,000+/lỗi)
+          🟡 MEDIUM: $MEDIUM      (💰 \$200+/lỗi)
+          📦 TỔNG: $TOTAL
           
-          ┌───────┬──────────┬─────────────────┬──────────────────┐
-          │ MỨC ĐỘ │ SỐ LƯỢNG │   GIÁ TRỊ ƯỚC TÍNH │  TRẠNG THÁI      │
-          ├───────┼──────────┼─────────────────┼──────────────────┤
-          │ 🔥    │ $(printf "%6s" $CRITICAL) │  \$5,000+/lỗi     │ ⚠️ XỬ LÝ NGAY! │
-          │ ⚡    │ $(printf "%6s" $HIGH)     │  \$1,000+/lỗi     │ ⚡ 24 GIỜ      │
-          │ 🟡    │ $(printf "%6s" $MEDIUM)   │  \$200+/lỗi       │ 🗓️ 7 NGÀY      │
-          │ 🟢    │ $(printf "%6s" $LOW)      │  \$50+/lỗi        │ 📋 XEM XÉT     │
-          │ ℹ️    │ $(printf "%6s" $INFO)     │  Có giá trị       │ 🔍 KIỂM TRA    │
-          ├───────┼──────────┼─────────────────┼──────────────────┤
-          │ 📦    │ $(printf "%6s" $TOTAL)    │  TỔNG CỘNG       │                  │
-          └───────┴──────────┴─────────────────┴──────────────────┘
-          
-          ┌─────────────────────────────────────────────────────────────────────────────┐
-          │ 🤖 CHIP V10.0 CHỦ QUYỀN ANALYSIS                                          │
-          │ 📊 RISK SCORE: $RISK_SCORE                                                │
-          │ ⚠️ RISK LEVEL: $RISK_LEVEL                                                │
-          │ ⚡ URGENCY: $URGENCY                                                      │
-          │ 🔥 LỖI CHƯA VÁ: $TOTAL_UNFIXED (${CRITICAL_UNFIXED} CRITICAL, ${HIGH_UNFIXED} HIGH) │
-          │ 💰 ƯỚC TÍNH BOUNTY: \$ $(printf "%'d" $ESTIMATED_BOUNTY)                  │
-          │ 🔌 CHIP VERSION: V10.0                                                    │
-          │ ⚡ POWER: 100%                                                            │
-          │ 🔋 AUTOMATION: 100%                                                       │
-          └─────────────────────────────────────────────────────────────────────────────┘
-          
+          🤖 CHIP V10.0 ANALYSIS
+          📊 RISK SCORE: $RISK_SCORE - $RISK_LEVEL
+          🔥 LỖI CHƯA VÁ: $TOTAL_UNFIXED
+          💰 ƯỚC TÍNH BOUNTY: \$ $(printf "%'d" $ESTIMATED_BOUNTY)
           ════════════════════════════════════════════════════════════════════════════════
-          📋 DANH SÁCH WEB ĐÃ QUÉT (CHIP V10.0 CHỌN - TOÀN CẦU)
+          📋 DANH SÁCH WEB ĐÃ QUÉT
           ════════════════════════════════════════════════════════════════════════════════
-          EOFREPORT
-          
+          EOF
           cat targets.txt >> CHIP_V10_REPORT.txt
           
-          # ============================================================
-          # CHI TIẾT TỪNG LỖI - CHIP V10.0
-          # ============================================================
-          echo "" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          echo "📋 CHI TIẾT TỪNG LỖI - CHIP V10.0 CHỦ QUYỀN" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          
-          # CRITICAL
           if [ $CRITICAL -gt 0 ]; then
               echo "" >> CHIP_V10_REPORT.txt
-              echo "┌─────────────────────────────────────────────────────────────────────────────┐" >> CHIP_V10_REPORT.txt
-              echo "│ 🔥🔥🔥 CRITICAL (${CRITICAL} lỗi) - XỬ LÝ NGAY - BỒI THƯỜNG CAO NHẤT       │" >> CHIP_V10_REPORT.txt
-              echo "└─────────────────────────────────────────────────────────────────────────────┘" >> CHIP_V10_REPORT.txt
-              
-              jq -r '
-                select(.info.severity=="critical") | 
-                "\n────────────────────────────────────────────────────────\n" +
-                "📌 TÊN LỖI: " + .info.name + "\n" +
-                "📍 URL: " + .matched-at + "\n" +
-                "🔗 CVE ID: " + (.info.cve_id // "N/A") + "\n" +
-                "📊 MỨC ĐỘ: CRITICAL - \$5,000+\n" +
-                "📝 MÔ TẢ: " + (.info.description // "Không có mô tả") + "\n" +
-                "🛠️ GIẢI PHÁP: " + (.info.solution // "Chưa có giải pháp") + "\n" +
-                "📂 REFERENCE: " + ((.info.reference // []) | join(", ")) + "\n" +
-                "🔗 LINK CVE: https://nvd.nist.gov/vuln/detail/" + (.info.cve_id // "") + "\n" +
-                "⚠️ RỦI RO: Có thể bị tấn công ngay lập tức\n" +
-                "💰 BOUNTY: \$5,000 - \$50,000\n" +
-                "────────────────────────────────────────────────────────"
-              ' results.json 2>/dev/null >> CHIP_V10_REPORT.txt
+              echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
+              echo "🔥🔥🔥 LỖI CRITICAL" >> CHIP_V10_REPORT.txt
+              echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
+              jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null >> CHIP_V10_REPORT.txt
           fi
           
-          # HIGH
-          if [ $HIGH -gt 0 ]; then
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "┌─────────────────────────────────────────────────────────────────────────────┐" >> CHIP_V10_REPORT.txt
-              echo "│ ⚡⚡⚡ HIGH (${HIGH} lỗi) - XỬ LÝ TRONG 24 GIỜ - BỒI THƯỜNG CAO             │" >> CHIP_V10_REPORT.txt
-              echo "└─────────────────────────────────────────────────────────────────────────────┘" >> CHIP_V10_REPORT.txt
-              
-              jq -r '
-                select(.info.severity=="high") | 
-                "\n────────────────────────────────────────────────────────\n" +
-                "📌 TÊN LỖI: " + .info.name + "\n" +
-                "📍 URL: " + .matched-at + "\n" +
-                "🔗 CVE ID: " + (.info.cve_id // "N/A") + "\n" +
-                "📊 MỨC ĐỘ: HIGH - \$1,000+\n" +
-                "📝 MÔ TẢ: " + (.info.description // "Không có mô tả") + "\n" +
-                "🛠️ GIẢI PHÁP: " + (.info.solution // "Chưa có giải pháp") + "\n" +
-                "💰 BOUNTY: \$1,000 - \$5,000\n" +
-                "────────────────────────────────────────────────────────"
-              ' results.json 2>/dev/null >> CHIP_V10_REPORT.txt
-          fi
-          
-          # MEDIUM
-          if [ $MEDIUM -gt 0 ]; then
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "┌─────────────────────────────────────────────────────────────────────────────┐" >> CHIP_V10_REPORT.txt
-              echo "│ 🟡🟡🟡 MEDIUM (${MEDIUM} lỗi) - XỬ LÝ TRONG 7 NGÀY                         │" >> CHIP_V10_REPORT.txt
-              echo "└─────────────────────────────────────────────────────────────────────────────┘" >> CHIP_V10_REPORT.txt
-              
-              jq -r '
-                select(.info.severity=="medium") | 
-                "\n────────────────────────────────────────────────────────\n" +
-                "📌 TÊN LỖI: " + .info.name + "\n" +
-                "📍 URL: " + .matched-at + "\n" +
-                "🔗 CVE ID: " + (.info.cve_id // "N/A") + "\n" +
-                "📊 MỨC ĐỘ: MEDIUM - \$200+\n" +
-                "📝 MÔ TẢ: " + (.info.description // "Không có mô tả") + "\n" +
-                "💰 BOUNTY: \$200 - \$1,000\n" +
-                "────────────────────────────────────────────────────────"
-              ' results.json 2>/dev/null >> CHIP_V10_REPORT.txt
-          fi
-          
-          # ============================================================
-          # LỖI CHƯA VÁ - CHIP V10.0 ƯU TIÊN CAO NHẤT
-          # ============================================================
           if [ $TOTAL_UNFIXED -gt 0 ]; then
               echo "" >> CHIP_V10_REPORT.txt
               echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-              echo "🔥🔥🔥 LỖI CHƯA ĐƯỢC VÁ (${TOTAL_UNFIXED} lỗi) - CHIP V10.0 ƯU TIÊN NHẤT" >> CHIP_V10_REPORT.txt
+              echo "🔥🔥🔥 LỖI CHƯA VÁ - ƯU TIÊN CAO NHẤT" >> CHIP_V10_REPORT.txt
               echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-              echo "⚠️ CHIP V10.0 CẢNH BÁO: ĐÂY LÀ CÁC LỖI CHƯA CÓ BẢN VÁ - CÓ THỂ BỊ KHAI THÁC!" >> CHIP_V10_REPORT.txt
-              echo "" >> CHIP_V10_REPORT.txt
-              
-              jq -r '
-                .[] | 
-                "\n────────────────────────────────────────────────────────\n" +
-                "📌 TÊN LỖI: " + .info.name + "\n" +
-                "📍 URL: " + .matched-at + "\n" +
-                "🔗 CVE ID: " + (.info.cve_id // "N/A") + "\n" +
-                "📊 MỨC ĐỘ: " + .info.severity + "\n" +
-                "📝 MÔ TẢ: " + (.info.description // "Không có mô tả") + "\n" +
-                "🛠️ GIẢI PHÁP: " + (.info.solution // "Chưa có giải pháp") + "\n" +
-                "🔗 LINK CVE: https://nvd.nist.gov/vuln/detail/" + (.info.cve_id // "") + "\n" +
-                "⚠️ TRẠNG THÁI: CHƯA ĐƯỢC VÁ - RỦI RO CAO\n" +
-                "────────────────────────────────────────────────────────"
-              ' unfixed_results.json 2>/dev/null >> CHIP_V10_REPORT.txt
-          fi
-          
-          # ============================================================
-          # KHUYẾN NGHỊ CHI TIẾT - CHIP V10.0
-          # ============================================================
-          echo "" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          echo "📋 KHUYẾN NGHỊ XỬ LÝ - CHIP V10.0 CHỦ QUYỀN" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          
-          if [ $CRITICAL -gt 0 ]; then
-              echo "🔴 CẤP BÁCH NHẤT:" >> CHIP_V10_REPORT.txt
-              echo "   → Có $CRITICAL lỗi CRITICAL chưa được vá!" >> CHIP_V10_REPORT.txt
-              echo "   → HÀNH ĐỘNG: Xử lý NGAY LẬP TỨC trong vòng 1 giờ" >> CHIP_V10_REPORT.txt
-              echo "   → NGUY CƠ: Hệ thống có thể bị chiếm quyền kiểm soát" >> CHIP_V10_REPORT.txt
-              echo "   → BOUNTY: \$5,000 - \$50,000 mỗi lỗi" >> CHIP_V10_REPORT.txt
-              echo "   → CHIP V10.0: ĐÃ PHÂN TÍCH VÀ XÁC NHẬN" >> CHIP_V10_REPORT.txt
-          fi
-          
-          if [ $HIGH -gt 0 ]; then
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "🟠 KHẨN CẤP:" >> CHIP_V10_REPORT.txt
-              echo "   → Có $HIGH lỗi HIGH chưa được vá!" >> CHIP_V10_REPORT.txt
-              echo "   → HÀNH ĐỘNG: Xử lý trong vòng 24 giờ" >> CHIP_V10_REPORT.txt
-              echo "   → NGUY CƠ: Dữ liệu nhạy cảm có thể bị lộ" >> CHIP_V10_REPORT.txt
-              echo "   → BOUNTY: \$1,000 - \$5,000 mỗi lỗi" >> CHIP_V10_REPORT.txt
-          fi
-          
-          if [ $MEDIUM -gt 0 ]; then
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "🟡 BÌNH THƯỜNG:" >> CHIP_V10_REPORT.txt
-              echo "   → Có $MEDIUM lỗi MEDIUM chưa được vá!" >> CHIP_V10_REPORT.txt
-              echo "   → HÀNH ĐỘNG: Xử lý trong vòng 7 ngày" >> CHIP_V10_REPORT.txt
-              echo "   → BOUNTY: \$200 - \$1,000 mỗi lỗi" >> CHIP_V10_REPORT.txt
-          fi
-          
-          # ============================================================
-          # LỊCH SỬ - CHIP V10.0 HỌC TỪ QUÁ KHỨ
-          # ============================================================
-          echo "" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          echo "📜 LỊCH SỬ BÁO CÁO - CHIP V10.0 HỌC TỪ QUÁ KHỨ" >> CHIP_V10_REPORT.txt
-          echo "════════════════════════════════════════════════════════════════════════════════" >> CHIP_V10_REPORT.txt
-          
-          if [ -f history.json ]; then
-              echo "📊 TỔNG SỐ LẦN QUÉT: $(jq '.scanned | length' history.json 2>/dev/null || echo 0)" >> CHIP_V10_REPORT.txt
-              echo "🔥 TỔNG SỐ CVE ĐÃ VÁ: $(jq '.fixed_cves | length' history.json 2>/dev/null || echo 0)" >> CHIP_V10_REPORT.txt
-              echo "💰 TỔNG SỐ WEB CÓ TIỀN: $(jq '.high_value | length' history.json 2>/dev/null || echo 0)" >> CHIP_V10_REPORT.txt
-              echo "🧠 CHIP V10.0 ĐÃ HỌC: $(jq '.fixed_cves | length' history.json 2>/dev/null || echo 0) lỗ hổng" >> CHIP_V10_REPORT.txt
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "📋 DANH SÁCH CVE ĐÃ VÁ (CHIP V10.0 LEARNED):" >> CHIP_V10_REPORT.txt
-              jq -r '.fixed_cves[]' history.json 2>/dev/null | while read cve; do
-                  echo "  ✅ $cve" >> CHIP_V10_REPORT.txt
-              done
-              if [ $(jq '.fixed_cves | length' history.json 2>/dev/null || echo 0) -eq 0 ]; then
-                  echo "  (Chưa có CVE nào được đánh dấu đã vá)" >> CHIP_V10_REPORT.txt
-              fi
-              
-              echo "" >> CHIP_V10_REPORT.txt
-              echo "💰 DANH SÁCH WEB CÓ TIỀN (CHIP V10.0 FOUND):" >> CHIP_V10_REPORT.txt
-              jq -r '.high_value[]' history.json 2>/dev/null | while read domain; do
-                  echo "  💰 $domain" >> CHIP_V10_REPORT.txt
-              done
-              if [ $(jq '.high_value | length' history.json 2>/dev/null || echo 0) -eq 0 ]; then
-                  echo "  (Chưa có web nào được đánh dấu có tiền)" >> CHIP_V10_REPORT.txt
-              fi
+              jq -r '.[] | "[⚠️] " + .info.name + " → " + .matched-at + " | CVE: " + (.info.cve_id // "N/A")' unfixed_results.json 2>/dev/null >> CHIP_V10_REPORT.txt
           fi
           
           echo "" >> CHIP_V10_REPORT.txt
           echo "╔══════════════════════════════════════════════════════════════════════════════╗" >> CHIP_V10_REPORT.txt
-          echo "║                                                                            ║" >> CHIP_V10_REPORT.txt
-          echo "║        ✅ BÁO CÁO HOÀN TẤT - CHIP V10.0 CHỦ QUYỀN VŨ TRỤ                  ║" >> CHIP_V10_REPORT.txt
-          echo "║                                                                            ║" >> CHIP_V10_REPORT.txt
+          echo "║        ✅ BÁO CÁO HOÀN TẤT - CHIP V10.0 CHỦ QUYỀN                        ║" >> CHIP_V10_REPORT.txt
           echo "║  📅 $(date '+%Y-%m-%d %H:%M:%S')                                           ║" >> CHIP_V10_REPORT.txt
-          echo "║  🔌 CHIP VERSION: V10.0                                                    ║" >> CHIP_V10_REPORT.txt
-          echo "║  🧠 AI LEVEL: ${{ github.event.inputs.ai_level || '20x' }}                 ║" >> CHIP_V10_REPORT.txt
-          echo "║  🚀 CHẾ ĐỘ: ${{ github.event.inputs.scan_mode || 'ultimate' }}             ║" >> CHIP_V10_REPORT.txt
-          echo "║  🔥 RISK SCORE: $RISK_SCORE                                                ║" >> CHIP_V10_REPORT.txt
-          echo "║  ⚠️ RISK LEVEL: $RISK_LEVEL                                               ║" >> CHIP_V10_REPORT.txt
-          echo "║  ⚡ URGENCY: $URGENCY                                                     ║" >> CHIP_V10_REPORT.txt
           echo "║  💰 ƯỚC TÍNH BOUNTY: \$ $(printf "%'d" $ESTIMATED_BOUNTY)                 ║" >> CHIP_V10_REPORT.txt
-          echo "║  🌍 PHẠM VI: TOÀN CẦU - CHÂU Á, ÂU, MỸ                                  ║" >> CHIP_V10_REPORT.txt
-          echo "║  ⚡ SỨC MẠNH: 100%                                                        ║" >> CHIP_V10_REPORT.txt
-          echo "║  🔋 TỰ ĐỘNG HÓA: 100%                                                     ║" >> CHIP_V10_REPORT.txt
-          echo "║                                                                            ║" >> CHIP_V10_REPORT.txt
           echo "╚══════════════════════════════════════════════════════════════════════════════╝" >> CHIP_V10_REPORT.txt
           
-          echo ""
-          echo "✅ CHIP V10.0 ĐÃ TẠO BÁO CÁO SIÊU CẤP!"
-          echo "📄 FILE: CHIP_V10_REPORT.txt"
-          echo ""
-          echo "════════════════════════════════════════════════════════════════════════════════"
-          echo "📋 XEM NHANH BÁO CÁO CHIP V10.0:"
-          echo "════════════════════════════════════════════════════════════════════════════════"
-          head -90 CHIP_V10_REPORT.txt
+          echo "✅ ĐÃ TẠO BÁO CÁO!"
+          head -50 CHIP_V10_REPORT.txt
 
-      - name: 💾 LƯU KHO BÁU - CHIP V10.0 SIÊU CẤP
+      - name: 💾 LƯU KHO BÁU
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1298,7 +714,6 @@ jobs:
             results.txt
             results.json
             unfixed_results.json
-            all_value_results.json
             chip_v10_analysis.json
             CHIP_V10_REPORT.txt
             targets.txt
