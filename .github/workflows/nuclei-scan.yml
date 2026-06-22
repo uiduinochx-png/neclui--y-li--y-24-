@@ -1,4 +1,4 @@
-name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI XỊN"
+name: "👑 CHỦ NHÂN VŨ TRỤ - SĂN LỖI XỊN 1000"
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       severity_level:
         description: '📊 MỨC ĐỘ LỖ HỔNG'
         required: false
-        default: 'critical,high,medium'
+        default: 'critical,high,medium,low,info'
         type: choice
         options:
           - critical,high
@@ -14,7 +14,7 @@ on:
           - critical,high,medium,low
           - critical,high,medium,low,info
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 */6 * * *'
 
 jobs:
   ultimate-scan:
@@ -56,10 +56,10 @@ jobs:
           
           echo "✅ CÀI ĐẶT HOÀN TẤT!"
 
-      - name: 👑 LẤY 20 WEB NHIỀU LỖI NHẤT
+      - name: 👑 LẤY 1000 WEB NHIỀU LỖI NHẤT
         id: get_targets
         run: |
-          echo "🌌 CHỦ NHÂN VŨ TRỤ ĐANG TÌM MỤC TIÊU..."
+          echo "🌌 CHỦ NHÂN VŨ TRỤ ĐANG TÌM 1000 MỤC TIÊU..."
           
           if [ ! -f history.json ]; then
               echo '{"scanned": [], "high_value": []}' > history.json
@@ -79,35 +79,28 @@ jobs:
           seen = set()
           
           print("="*70)
-          print("👑 CHỦ NHÂN VŨ TRỤ - TÌM WEB NHIỀU LỖI")
+          print("👑 CHỦ NHÂN VŨ TRỤ - TÌM 1000 WEB NHIỀU LỖI")
           print("="*70)
           print(f"📊 WEB ĐÃ QUÉT: {len(history['scanned'])}")
           print(f"📊 WEB GIÁ TRỊ CAO: {len(history['high_value'])}")
           print("="*70)
           
           # ============================================
-          # DANH SÁCH WEB GIÁ TRỊ CAO - LUÔN CÓ
+          # DANH SÁCH WEB GIÁ TRỊ CAO
           # ============================================
           high_value_websites = [
-              # CMS - Lỗi plugin/extension
               ('wordpress.com', 'CRITICAL - SQLi/RCE plugin'),
               ('joomla.org', 'CRITICAL - SQLi/RCE extension'),
               ('drupal.org', 'CRITICAL - RCE module'),
               ('magento.com', 'CRITICAL - SQLi/RCE'),
               ('shopify.com', 'CRITICAL - RCE theme'),
-              
-              # Framework - Lỗi core
               ('laravel.com', 'CRITICAL - RCE core'),
               ('djangoproject.com', 'CRITICAL - RCE core'),
               ('rubyonrails.org', 'CRITICAL - RCE core'),
               ('spring.io', 'CRITICAL - RCE core'),
-              
-              # Payment - Lỗi logic tiền
               ('stripe.com', 'CRITICAL - Payment bypass'),
               ('paypal.com', 'CRITICAL - Payment logic'),
               ('square.com', 'CRITICAL - Payment logic'),
-              
-              # Crypto - Lỗi smart contract
               ('coinbase.com', 'CRITICAL - Crypto theft'),
               ('binance.com', 'CRITICAL - Withdraw bypass'),
               ('kraken.com', 'CRITICAL - Trading logic'),
@@ -121,45 +114,75 @@ jobs:
               ('sky.money', 'CRITICAL - Stablecoin logic'),
               ('layerzero.com', 'CRITICAL - Cross-chain'),
               ('wormhole.com', 'CRITICAL - Cross-chain'),
-              
-              # E-commerce - Lỗi logic
               ('amazon.com', 'CRITICAL - Payment bypass'),
               ('ebay.com', 'CRITICAL - Auction logic'),
               ('alibaba.com', 'CRITICAL - Trade logic'),
-              
-              # Travel - Lỗi booking
               ('booking.com', 'CRITICAL - Booking bypass'),
               ('expedia.com', 'CRITICAL - Booking logic'),
               ('airbnb.com', 'CRITICAL - Reservation logic'),
               ('tripadvisor.com', 'CRITICAL - Review logic'),
-              
-              # Social - Lỗi API
               ('reddit.com', 'CRITICAL - API logic'),
               ('discord.com', 'CRITICAL - API bypass'),
               ('telegram.org', 'CRITICAL - Bot takeover'),
               ('slack.com', 'CRITICAL - Integration bypass'),
-              
-              # Developer - Lỗi API
               ('github.com', 'CRITICAL - API bypass'),
               ('gitlab.com', 'CRITICAL - CI/CD escape'),
               ('bitbucket.org', 'CRITICAL - Pipeline escape'),
-              
-              # Cloud - Lỗi config
               ('aws.amazon.com', 'CRITICAL - Cloud escape'),
               ('azure.microsoft.com', 'CRITICAL - Cloud escape'),
               ('cloud.google.com', 'CRITICAL - Cloud escape'),
               ('digitalocean.com', 'CRITICAL - Container escape'),
-              
-              # News - Lỗi CMS
               ('cnn.com', 'CRITICAL - CMS logic'),
               ('bbc.com', 'CRITICAL - CMS logic'),
               ('nytimes.com', 'CRITICAL - Paywall logic'),
               ('theguardian.com', 'CRITICAL - Comment logic'),
-              
-              # Blockchain
               ('near.org', 'CRITICAL - Blockchain logic'),
               ('aptosfoundation.org', 'CRITICAL - Blockchain logic'),
               ('pyth.network', 'CRITICAL - Oracle logic'),
+              ('vietnamnet.vn', 'HIGH - News CMS'),
+              ('zingnews.vn', 'HIGH - News CMS'),
+              ('kenh14.vn', 'HIGH - Entertainment'),
+              ('tinhte.vn', 'HIGH - Tech forum'),
+              ('tiki.vn', 'HIGH - E-commerce'),
+              ('sendo.vn', 'HIGH - E-commerce'),
+              ('shopee.vn', 'HIGH - E-commerce'),
+              ('tokopedia.com', 'HIGH - E-commerce'),
+              ('bukalapak.com', 'HIGH - E-commerce'),
+              ('gojek.com', 'HIGH - Super App'),
+              ('traveloka.com', 'HIGH - Travel'),
+              ('sanook.com', 'HIGH - Portal'),
+              ('kapook.com', 'HIGH - Lifestyle'),
+              ('pantip.com', 'HIGH - Forum'),
+              ('thairath.co.th', 'HIGH - News'),
+              ('rappler.com', 'HIGH - News'),
+              ('abs-cbn.com', 'HIGH - Media'),
+              ('inquirer.net', 'HIGH - News'),
+              ('malaymail.com', 'HIGH - News'),
+              ('thestar.com.my', 'HIGH - News'),
+              ('straitstimes.com', 'HIGH - News'),
+              ('channelnewsasia.com', 'HIGH - News'),
+              ('yahoo.co.jp', 'HIGH - Portal'),
+              ('livedoor.com', 'HIGH - Portal'),
+              ('goo.ne.jp', 'HIGH - Search'),
+              ('naver.com', 'HIGH - Portal'),
+              ('daum.net', 'HIGH - Portal'),
+              ('chosun.com', 'HIGH - News'),
+              ('indiatimes.com', 'HIGH - News'),
+              ('hindustantimes.com', 'HIGH - News'),
+              ('ndtv.com', 'HIGH - News'),
+              ('aljazeera.com', 'HIGH - News'),
+              ('arabnews.com', 'HIGH - News'),
+              ('elpais.com', 'HIGH - News'),
+              ('lemonde.fr', 'HIGH - News'),
+              ('bild.de', 'HIGH - News'),
+              ('iol.co.za', 'HIGH - News'),
+              ('news24.com', 'HIGH - News'),
+              ('smh.com.au', 'HIGH - News'),
+              ('theage.com.au', 'HIGH - News'),
+              ('theglobeandmail.com', 'HIGH - News'),
+              ('cbc.ca', 'HIGH - News'),
+              ('clarin.com', 'HIGH - News'),
+              ('eluniversal.com.mx', 'HIGH - News'),
           ]
           
           high_value_domains = [d for d, _ in high_value_websites]
@@ -180,12 +203,12 @@ jobs:
           # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ HACKERONE...")
           try:
-              r = requests.get('https://hackerone.com/programs/search?query=type:public', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+              r = requests.get('https://hackerone.com/programs/search?query=type:public', timeout=30, headers={'User-Agent': 'Mozilla/5.0'})
               if r.status_code == 200:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for link in soup.find_all('a', href=True):
-                      if count >= 15:
+                      if count >= 100:
                           break
                       href = link['href']
                       if '/programs/' in href and 'hackerone.com' not in href:
@@ -211,12 +234,12 @@ jobs:
           # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ BUGCROWD...")
           try:
-              r = requests.get('https://bugcrowd.com/programs', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+              r = requests.get('https://bugcrowd.com/programs', timeout=30, headers={'User-Agent': 'Mozilla/5.0'})
               if r.status_code == 200:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for item in soup.find_all(['a', 'div'], class_=True):
-                      if count >= 15:
+                      if count >= 100:
                           break
                       text = item.text.strip()
                       if '.' in text and len(text) > 5 and ' ' not in text:
@@ -240,12 +263,12 @@ jobs:
           # ============================================
           print("\n🔍 ĐANG LẤY WEB TỪ IMMUNEFI...")
           try:
-              r = requests.get('https://immunefi.com/explore/', timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+              r = requests.get('https://immunefi.com/explore/', timeout=30, headers={'User-Agent': 'Mozilla/5.0'})
               if r.status_code == 200:
                   soup = BeautifulSoup(r.text, 'html.parser')
                   count = 0
                   for link in soup.find_all('a', href=True):
-                      if count >= 15:
+                      if count >= 50:
                           break
                       href = link['href']
                       if '/bounty/' in href and 'immunefi.com' not in href:
@@ -267,9 +290,50 @@ jobs:
               print(f"⚠️ Lỗi Immunefi: {e}")
           
           # ============================================
-          # CHỌN 20 WEB NHIỀU LỖI NHẤT
+          # THÊM WEB MỞ RỘNG
           # ============================================
-          print("\n👑 CHỌN 20 WEB NHIỀU LỖI NHẤT...")
+          print("\n🔍 ĐANG THÊM WEB MỞ RỘNG...")
+          extra_websites = [
+              ('techcrunch.com', 'MEDIUM - Tech news'),
+              ('theverge.com', 'MEDIUM - Tech news'),
+              ('wired.com', 'MEDIUM - Tech news'),
+              ('arstechnica.com', 'MEDIUM - Tech news'),
+              ('securityweek.com', 'MEDIUM - Security news'),
+              ('darkreading.com', 'MEDIUM - Security news'),
+              ('threatpost.com', 'MEDIUM - Security news'),
+              ('bloomberg.com', 'MEDIUM - Finance news'),
+              ('reuters.com', 'MEDIUM - Finance news'),
+              ('ft.com', 'MEDIUM - Finance news'),
+              ('edx.org', 'MEDIUM - Education'),
+              ('coursera.org', 'MEDIUM - Education'),
+              ('udemy.com', 'MEDIUM - Education'),
+              ('imdb.com', 'MEDIUM - Entertainment'),
+              ('rottentomatoes.com', 'MEDIUM - Entertainment'),
+              ('metacritic.com', 'MEDIUM - Entertainment'),
+              ('espn.com', 'MEDIUM - Sports'),
+              ('skysports.com', 'MEDIUM - Sports'),
+              ('steampowered.com', 'MEDIUM - Gaming'),
+              ('epicgames.com', 'MEDIUM - Gaming'),
+              ('gog.com', 'MEDIUM - Gaming'),
+              ('foodnetwork.com', 'MEDIUM - Food'),
+              ('allrecipes.com', 'MEDIUM - Food'),
+              ('epicurious.com', 'MEDIUM - Food'),
+          ]
+          
+          for domain, desc in extra_websites:
+              if domain not in seen:
+                  seen.add(domain)
+                  all_targets.append({
+                      'domain': domain,
+                      'source': desc,
+                      'type': 'Extra',
+                      'priority': 2
+                  })
+          
+          # ============================================
+          # CHỌN 1000 WEB
+          # ============================================
+          print("\n👑 CHỌN 1000 WEB NHIỀU LỖI NHẤT...")
           
           priority_1 = [t for t in all_targets if t['priority'] == 1]
           priority_2 = [t for t in all_targets if t['priority'] == 2]
@@ -279,17 +343,16 @@ jobs:
           random.shuffle(priority_2)
           random.shuffle(priority_3)
           
-          selected = priority_1[:12] + priority_2[:5] + priority_3[:3]
+          selected = priority_1[:150] + priority_2[:350] + priority_3[:500]
           
-          if len(selected) < 20:
-              selected += priority_2[:20-len(selected)]
-          if len(selected) < 20:
-              selected += priority_3[:20-len(selected)]
+          if len(selected) < 1000:
+              selected += priority_2[:1000-len(selected)]
+          if len(selected) < 1000:
+              selected += priority_3[:1000-len(selected)]
           
           random.shuffle(selected)
-          selected = selected[:20]
+          selected = selected[:1000]
           
-          # Cập nhật lịch sử
           for t in selected:
               if t['domain'] not in history['scanned']:
                   history['scanned'].append(t['domain'])
@@ -297,7 +360,6 @@ jobs:
           with open('history.json', 'w') as f:
               json.dump(history, f, indent=2)
           
-          # Ghi file target
           with open('targets.txt', 'w') as f:
               for t in selected:
                   domain = t['domain']
@@ -306,16 +368,12 @@ jobs:
                   f.write(f"{domain}  # {t['source']}\n")
           
           print("\n" + "="*70)
-          print("👑 20 WEB NHIỀU LỖI NHẤT:")
+          print("👑 1000 WEB NHIỀU LỖI NHẤT:")
           print("="*70)
-          for i, t in enumerate(selected, 1):
-              icon = "💎" if t['priority'] == 1 else ("🔶" if t['priority'] == 2 else "🔹")
-              print(f"{i:2}. {icon} {t['domain']:35} → {t['source']}")
-          print("="*70)
-          print(f"✅ TỔNG: {len(selected)} WEB")
           print(f"💎 WEB GIÁ TRỊ CAO: {len([t for t in selected if t['priority'] == 1])}")
-          print(f"🔶 WEB3: {len([t for t in selected if t['priority'] == 2])}")
+          print(f"🔶 WEB MỞ RỘNG: {len([t for t in selected if t['priority'] == 2])}")
           print(f"🔹 BUG BOUNTY: {len([t for t in selected if t['priority'] == 3])}")
+          print(f"✅ TỔNG: {len(selected)} WEB")
           print("="*70)
           PYEOF
           
@@ -351,19 +409,19 @@ jobs:
           echo "🎯 SỐ MỤC TIÊU: $TARGET_COUNT"
           echo "target_count=$TARGET_COUNT" >> $GITHUB_ENV
           
-          echo "📋 DANH SÁCH WEB:"
-          cat targets.txt
+          echo "📋 DANH SÁCH WEB (10 MỤC ĐẦU):"
+          head -10 targets.txt
 
       - name: 🔍 QUÉT XUYÊN LỤC ĐỊA
-        timeout-minutes: 120
+        timeout-minutes: 180
         run: |
           echo "⏰ BẮT ĐẦU: $(date)"
           echo "🎯 MỤC TIÊU: ${{ env.target_count }}"
-          echo "📊 MỨC ĐỘ: ${{ github.event.inputs.severity_level || 'critical,high,medium' }}"
+          echo "📊 MỨC ĐỘ: ${{ github.event.inputs.severity_level || 'critical,high,medium,low,info' }}"
           
           nuclei \
             -list targets.txt \
-            -severity ${{ github.event.inputs.severity_level || 'critical,high,medium' }} \
+            -severity ${{ github.event.inputs.severity_level || 'critical,high,medium,low,info' }} \
             -t /tmp/ultimate-templates/ \
             -t /tmp/ultimate-templates/geeknik/ \
             -t /tmp/ultimate-templates/extra/ \
@@ -397,10 +455,10 @@ jobs:
           
           echo "✅ HOÀN TẤT: $(date)"
 
-      - name: 📊 LỌC LỖI CÓ GIÁ TRỊ
+      - name: 📊 LỌC TẤT CẢ LỖI CÓ GIÁ TRỊ
         if: always()
         run: |
-          echo "🔥 ĐANG LỌC LỖI CÓ GIÁ TRỊ..."
+          echo "🔥 ĐANG LỌC TẤT CẢ LỖI CÓ GIÁ TRỊ..."
           
           # Tạo file kết quả
           if [ ! -f results.json ]; then
@@ -408,65 +466,115 @@ jobs:
               echo "Không tìm thấy lỗ hổng nào" > results.txt
           fi
           
-          # Lọc lỗi có giá trị (Critical, High, Medium)
+          # ============================================
+          # LỌC TẤT CẢ LỖI CÓ GIÁ TRỊ
+          # ============================================
           echo "=================================================="
-          echo "👑 LỖI CÓ GIÁ TRỊ (Critical, High, Medium)"
+          echo "👑 TẤT CẢ LỖI CÓ GIÁ TRỊ (TỪ INFO ĐẾN CRITICAL)"
           echo "=================================================="
           
           CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
           HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
           MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
-          TOTAL=$((CRITICAL + HIGH + MEDIUM))
+          LOW=$(jq -r 'select(.info.severity=="low")' results.json 2>/dev/null | wc -l || echo 0)
+          INFO=$(jq -r 'select(.info.severity=="info")' results.json 2>/dev/null | wc -l || echo 0)
+          TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW + INFO))
           
-          echo "🔥 CRITICAL: $CRITICAL"
-          echo "⚡ HIGH: $HIGH"
-          echo "🟡 MEDIUM: $MEDIUM"
+          echo "🔥 CRITICAL: $CRITICAL  (💰 $10,000+)"
+          echo "⚡ HIGH: $HIGH          (💰 $1,000+)"
+          echo "🟡 MEDIUM: $MEDIUM      (💰 $100+)"
+          echo "🟢 LOW: $LOW            (💰 $10+)"
+          echo "ℹ️ INFO: $INFO           (💰 Có thể dẫn đến lỗi lớn)"
+          echo "=================================================="
           echo "📦 TỔNG GIÁ TRỊ: $TOTAL"
           echo "=================================================="
           
-          # Tạo báo cáo giá trị
+          # Tạo báo cáo giá trị - TẤT CẢ CÁC LOẠI
           cat > report.txt << 'EOF'
-          👑 CHỦ NHÂN VŨ TRỤ - LỖI CÓ GIÁ TRỊ
-          ========================================
+          👑 CHỦ NHÂN VŨ TRỤ - TẤT CẢ LỖI CÓ GIÁ TRỊ
+          ==========================================================
           
-          📊 THỐNG KÊ LỖI CÓ GIÁ TRỊ
-          ========================================
+          📊 THỐNG KÊ LỖI (TỪ INFO ĐẾN CRITICAL)
+          ==========================================================
           EOF
           
-          echo "🔥 CRITICAL: $CRITICAL" >> report.txt
-          echo "⚡ HIGH: $HIGH" >> report.txt
-          echo "🟡 MEDIUM: $MEDIUM" >> report.txt
+          echo "🔥 CRITICAL: $CRITICAL  (💰 $10,000+)" >> report.txt
+          echo "⚡ HIGH: $HIGH          (💰 $1,000+)" >> report.txt
+          echo "🟡 MEDIUM: $MEDIUM      (💰 $100+)" >> report.txt
+          echo "🟢 LOW: $LOW            (💰 $10+)" >> report.txt
+          echo "ℹ️ INFO: $INFO           (💰 Có thể dẫn đến lỗi lớn)" >> report.txt
+          echo "==========================================================" >> report.txt
           echo "📦 TỔNG GIÁ TRỊ: $TOTAL" >> report.txt
-          echo "========================================" >> report.txt
+          echo "==========================================================" >> report.txt
           
-          # Liệt kê lỗi Critical
+          # ============================================
+          # LIỆT KÊ TẤT CẢ LỖI
+          # ============================================
+          
+          # 1. CRITICAL - Nghiêm trọng nhất
           if [ $CRITICAL -gt 0 ]; then
               echo "" >> report.txt
-              echo "🔥 CRITICAL:" >> report.txt
-              jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
+              echo "🔥 CRITICAL (💰 $10,000+):" >> report.txt
+              echo "----------------------------------------" >> report.txt
+              jq -r 'select(.info.severity=="critical") | "[🔥] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # Liệt kê lỗi High
+          # 2. HIGH - Nghiêm trọng
           if [ $HIGH -gt 0 ]; then
               echo "" >> report.txt
-              echo "⚡ HIGH:" >> report.txt
-              jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
+              echo "⚡ HIGH (💰 $1,000+):" >> report.txt
+              echo "----------------------------------------" >> report.txt
+              jq -r 'select(.info.severity=="high") | "[⚡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # Liệt kê lỗi Medium
+          # 3. MEDIUM - Trung bình
           if [ $MEDIUM -gt 0 ]; then
               echo "" >> report.txt
-              echo "🟡 MEDIUM:" >> report.txt
-              jq -r 'select(.info.severity=="medium") | "[🟡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -50 >> report.txt
+              echo "🟡 MEDIUM (💰 $100+):" >> report.txt
+              echo "----------------------------------------" >> report.txt
+              jq -r 'select(.info.severity=="medium") | "[🟡] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
           fi
           
-          # Danh sách web đã quét
+          # 4. LOW - Thấp
+          if [ $LOW -gt 0 ]; then
+              echo "" >> report.txt
+              echo "🟢 LOW (💰 $10+):" >> report.txt
+              echo "----------------------------------------" >> report.txt
+              jq -r 'select(.info.severity=="low") | "[🟢] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
+          fi
+          
+          # 5. INFO - Thông tin
+          if [ $INFO -gt 0 ]; then
+              echo "" >> report.txt
+              echo "ℹ️ INFO (Có thể dẫn đến lỗi lớn):" >> report.txt
+              echo "----------------------------------------" >> report.txt
+              jq -r 'select(.info.severity=="info") | "[ℹ️] " + .info.name + " → " + .matched-at' results.json 2>/dev/null | head -100 >> report.txt
+          fi
+          
+          # ============================================
+          # DANH SÁCH WEB ĐÃ QUÉT
+          # ============================================
           echo "" >> report.txt
           echo "📋 DANH SÁCH WEB ĐÃ QUÉT:" >> report.txt
+          echo "----------------------------------------" >> report.txt
           cat targets.txt >> report.txt
           
-          # Tạo file chỉ chứa lỗi giá trị cao
-          jq 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium")' results.json 2>/dev/null > high_value_results.json || echo '[]' > high_value_results.json
+          # ============================================
+          # TẠO FILE LỖI GIÁ TRỊ CAO - TẤT CẢ CÁC LOẠI
+          # ============================================
+          jq 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium" or .info.severity=="low" or .info.severity=="info")' results.json 2>/dev/null > all_value_results.json || echo '[]' > all_value_results.json
+          
+          # ============================================
+          # TẠO FILE CHỈ LỖI NGHIÊM TRỌNG
+          # ============================================
+          jq 'select(.info.severity=="critical" or .info.severity=="high")' results.json 2>/dev/null > critical_high_results.json || echo '[]' > critical_high_results.json
+          
+          echo ""
+          echo "✅ ĐÃ LỌC XONG TẤT CẢ LỖI CÓ GIÁ TRỊ!"
+          echo "📊 FILE KẾT QUẢ:"
+          echo "   - all_value_results.json (Tất cả lỗi có giá trị)"
+          echo "   - critical_high_results.json (Chỉ Critical + High)"
+          echo "   - report.txt (Báo cáo chi tiết)"
 
       - name: 💾 LƯU KHO BÁU
         if: always()
@@ -476,7 +584,8 @@ jobs:
           path: |
             results.txt
             results.json
-            high_value_results.json
+            all_value_results.json
+            critical_high_results.json
             results.jsonl
             report.txt
             report.html
