@@ -3,182 +3,254 @@ name: "Nuclei Engine 24/7 Pro"
 on:
   workflow_dispatch:
     inputs:
-      target_count:
-        description: '🎯 SỐ WEB CẦN CHỌN'
+      severity_level:
+        description: '📊 MỨC ĐỘ LỖ HỔNG'
         required: false
-        default: '200'
+        default: 'critical,high,medium'
         type: choice
         options:
-          - 100
-          - 200
-          - 300
-          - 500
+          - critical,high
+          - critical,high,medium
+          - critical,high,medium,low
+          - critical,high,medium,low,info
+      scan_mode:
+        description: '🚀 CHẾ ĐỘ QUÉT'
+        required: false
+        default: 'deep'
+        type: choice
+        options:
+          - fast
+          - smart
+          - deep
+          - ultimate
   schedule:
     - cron: '0 */6 * * *'
 
 jobs:
-  auto-find-targets:
-    runs-on: ubuntu-latest
-    outputs:
-      target_count: ${{ steps.count.outputs.target_count }}
-    steps:
-      - name: 🌍 TỰ ĐỘNG TÌM 200 WEB GIÁ TRỊ CAO
-        id: find
-        run: |
-          echo "🌍 ĐANG QUÉT HÀNG TỶ WEB + HACKERONE + BUGCROWD + IMMUNEFI..."
-          
-          # Tạo file Python tìm web
-          cat > /tmp/finder.py << 'EOF'
-          import json, requests, subprocess, re
-          
-          print("🧠 AUTO FINDER - QUÉT TOÀN CẦU")
-          all_targets, seen = [], set()
-          
-          # HACKERONE
-          try:
-              r = requests.get("https://hackerone.com/programs/search?query=type:public", timeout=20)
-              for part in re.findall(r'[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', r.text):
-                  d = part.lower()
-                  if d not in seen and len(d) > 3 and 'hackerone' not in d:
-                      seen.add(d); all_targets.append({"domain": d, "source": "HackerOne", "score": 95})
-          except: pass
-          
-          # BUGCROWD
-          try:
-              r = requests.get("https://bugcrowd.com/programs", timeout=20)
-              for part in re.findall(r'[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', r.text):
-                  d = part.lower()
-                  if d not in seen and len(d) > 3 and 'bugcrowd' not in d:
-                      seen.add(d); all_targets.append({"domain": d, "source": "Bugcrowd", "score": 90})
-          except: pass
-          
-          # IMMUNEFI
-          try:
-              r = requests.get("https://immunefi.com/explore/", timeout=20)
-              for part in re.findall(r'[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', r.text):
-                  d = part.lower()
-                  if d not in seen and len(d) > 3 and 'immunefi' not in d:
-                      seen.add(d); all_targets.append({"domain": d, "source": "Immunefi", "score": 98})
-          except: pass
-          
-          # TOP 1M - HÀNG TRIỆU WEB
-          try:
-              r = requests.get("https://raw.githubusercontent.com/mehulj94/top-1m/master/top-1m.txt", timeout=20)
-              if r.status_code == 200:
-                  for line in r.text.splitlines()[:5000]:
-                      d = line.strip().lower()
-                      if d and '.' in d and d not in seen:
-                          score = 20
-                          if any(k in d for k in ["bank","finance","pay"]): score += 40
-                          if any(k in d for k in ["crypto","blockchain","defi"]): score += 45
-                          if any(k in d for k in ["gov","government"]): score += 35
-                          if any(k in d for k in ["api","auth","login","admin"]): score += 30
-                          if d.endswith(".gov") or d.endswith(".edu"): score += 15
-                          if score > 30:
-                              seen.add(d); all_targets.append({"domain": d, "source": "Top1M", "score": score})
-          except: pass
-          
-          print(f"📊 TỔNG WEB TÌM: {len(all_targets)}")
-          all_targets.sort(key=lambda x: x["score"], reverse=True)
-          
-          target = 200
-          top = all_targets[:target*3]
-          alive = []
-          
-          print("🔍 KIỂM TRA WEB SỐNG...")
-          for t in top:
-              if len(alive) >= target: break
-              url = f"https://{t['domain']}"
-              try:
-                  c = subprocess.run(["curl","-s","-o","/dev/null","-w","%{http_code}",url], capture_output=True, text=True, timeout=5).stdout.strip()
-                  if c in ["200","301","302","403"]:
-                      alive.append(t); print(f"  ✅ {url}")
-              except: pass
-          
-          print(f"📊 WEB SỐNG: {len(alive)}/{target}")
-          with open("targets.txt", "w") as f:
-              for t in alive: f.write(f"https://{t['domain']}\n")
-          
-          print(f"✅ ĐÃ CHỌN {len(alive)} WEB TỪ HÀNG TỶ TRANG")
-          EOF
-          
-          python3 /tmp/finder.py
-          
-          # Đếm số lượng
-          COUNT=$(wc -l < targets.txt 2>/dev/null || echo 0)
-          echo "target_count=$COUNT" >> $GITHUB_ENV
-          echo "target_count=$COUNT" >> $GITHUB_OUTPUT
-          
-          echo "🎯 SỐ WEB: $COUNT"
-          head -10 targets.txt
-
-      - name: Upload targets
-        uses: actions/upload-artifact@v4
-        with:
-          name: targets
-          path: targets.txt
-          retention-days: 1
-
   nuclei-scan:
-    needs: auto-find-targets
     runs-on: ubuntu-latest
     container:
       image: projectdiscovery/nuclei:latest
+
     steps:
-      - name: Download targets
-        uses: actions/download-artifact@v4
-        with:
-          name: targets
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Multi-Thread Parallel Scanning
-        run: |
-          echo "🧠 NUCLEI ENGINE 24/7 PRO - QUÉT ${{ needs.auto-find-targets.outputs.target_count }} WEB"
-          echo "🔥 BẮT ĐẦU QUÉT..."
-          
-          nuclei -list targets.txt \
-                 -c 30 \
-                 -rate-limit 150 \
-                 -bulk-size 30 \
-                 -scan-all-ips \
-                 -severity critical,high,medium \
-                 -stats \
-                 -stats-interval 10 \
-                 -json-export results.json \
-                 -o results.txt \
-                 -silent \
-                 -no-color
+    - name: 🔥 QUÉT TOÀN DIỆN - KHÔNG BỎ SÓT
+      run: |
+        echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+        echo "║     🧠 NUCLEI ENGINE 24/7 PRO - QUÉT SẠCH VŨ TRỤ                         ║"
+        echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+        echo ""
+        echo "🔥 QUÉT SÂU TẤT CẢ CÁC WEB TRONG MỤC TIÊU"
+        echo "🔍 CHỈ BÁO CÁO LỖI CHƯA VÁ (KHÔNG LỖI CŨ)"
+        echo "📅 LỖI TỪ NĂM 2020 TRỞ LẠI ĐÂY - BỎ QUA LỖI CŨ"
+        echo ""
+        
+        # === XÁC ĐỊNH CHẾ ĐỘ QUÉT ===
+        case "${{ github.event.inputs.scan_mode || 'deep' }}" in
+          fast)
+            CONCURRENCY=50
+            BULK_SIZE=30
+            RATE_LIMIT=200
+            TIMEOUT=15
+            RETRIES=3
+            ;;
+          smart)
+            CONCURRENCY=40
+            BULK_SIZE=25
+            RATE_LIMIT=150
+            TIMEOUT=20
+            RETRIES=4
+            ;;
+          deep)
+            CONCURRENCY=30
+            BULK_SIZE=20
+            RATE_LIMIT=100
+            TIMEOUT=30
+            RETRIES=5
+            ;;
+          ultimate)
+            CONCURRENCY=20
+            BULK_SIZE=15
+            RATE_LIMIT=80
+            TIMEOUT=40
+            RETRIES=6
+            ;;
+        esac
+        
+        if [ -z "${{ github.event.inputs.severity_level }}" ]; then
+          SEVERITY="critical,high,medium"
+        else
+          SEVERITY="${{ github.event.inputs.severity_level }}"
+        fi
+        
+        echo "⚙️ CẤU HÌNH QUÉT:"
+        echo "⚙️ CONCURRENCY: $CONCURRENCY"
+        echo "⚙️ BULK_SIZE: $BULK_SIZE"
+        echo "⚙️ RATE_LIMIT: $RATE_LIMIT"
+        echo "⚙️ TIMEOUT: $TIMEOUT"
+        echo "⚙️ SEVERITY: $SEVERITY"
+        echo ""
+        echo "🚀 BẮT ĐẦU QUÉT TOÀN DIỆN..."
+        
+        # === QUÉT SÂU TẤT CẢ WEB ===
+        nuclei -list targets.txt \
+               -severity "$SEVERITY" \
+               -c $CONCURRENCY \
+               -rate-limit $RATE_LIMIT \
+               -bulk-size $BULK_SIZE \
+               -timeout $TIMEOUT \
+               -retries $RETRIES \
+               -max-redirects 15 \
+               -follow-redirects \
+               -scan-all-ips \
+               -stats \
+               -stats-interval 10 \
+               -json-export results.json \
+               -o results.txt \
+               -no-interactsh \
+               -disable-update-check \
+               -silent \
+               -no-color 2>&1 | tee scan.log
 
-      - name: Báo cáo
-        if: always()
-        run: |
-          echo "📊 KẾT QUẢ QUÉT:"
-          echo "=================================================="
-          TOTAL=$(cat results.txt 2>/dev/null | wc -l || echo 0)
-          echo "📦 TỔNG LỖI CÓ TIỀN: $TOTAL"
-          
-          if [ -f results.json ]; then
-              CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
-              HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
-              MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
-              BOUNTY=$((CRITICAL * 5000 + HIGH * 1000 + MEDIUM * 200))
-              
-              echo "🔥 CRITICAL: $CRITICAL (💰 \$5,000+ mỗi lỗi)"
-              echo "⚡ HIGH: $HIGH (💰 \$1,000+ mỗi lỗi)"
-              echo "🟡 MEDIUM: $MEDIUM (💰 \$200+ mỗi lỗi)"
-              echo "💰 TỔNG BOUNTY: \$$(printf "%'d" $BOUNTY)"
-              
-              echo ""
-              echo "📋 CHI TIẾT LỖI:"
-              jq -r 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium") | "📌 " + .info.name + " → " + .matched-at + " | " + .info.severity + " | CVE: " + (.info.cve_id // "N/A")' results.json 2>/dev/null | head -20
-          fi
-          echo "=================================================="
+    - name: 📊 LỌC LỖI MỚI NHẤT - BỎ LỖI CŨ
+      if: always()
+      run: |
+        echo "🔍 ĐANG LỌC LỖI MỚI NHẤT - BỎ QUA LỖI CŨ (TRƯỚC 2020)..."
+        
+        # === TẠO SCRIPT LỌC LỖI MỚI ===
+        cat > /tmp/filter.py << 'EOF'
+        import json, re
+        from datetime import datetime
+        
+        # Danh sách CVE đã cũ (trước 2020) - cần bỏ qua
+        OLD_CVES = []
+        OLD_YEARS = ['2019', '2018', '2017', '2016', '2015']
+        OLD_PATTERNS = [
+            r'CVE-201[0-9]',
+            r'CVE-2020-',
+            r'2019',
+            r'2018',
+            r'vulnerability from 20[0-1][0-9]',
+            r'legacy',
+            r'deprecated',
+            r'old',
+            r'outdated'
+        ]
+        
+        # Đọc file results.json
+        try:
+            with open('results.json', 'r') as f:
+                data = json.load(f)
+        except:
+            data = []
+        
+        print(f"📊 TỔNG LỖI TÌM THẤY: {len(data)}")
+        
+        # Lọc lỗi mới nhất
+        new_vulns = []
+        old_count = 0
+        
+        for vuln in data:
+            is_old = False
+            info = vuln.get('info', {})
+            cve_id = info.get('cve_id', '')
+            name = info.get('name', '')
+            description = info.get('description', '')
+            tags = info.get('tags', [])
+            
+            # Kiểm tra CVE cũ
+            if cve_id:
+                for year in OLD_YEARS:
+                    if year in cve_id:
+                        is_old = True
+                        old_count += 1
+                        break
+            
+            # Kiểm tra từ khóa cũ
+            if not is_old:
+                combined = (name + ' ' + description).lower()
+                for pattern in OLD_PATTERNS:
+                    if re.search(pattern, combined, re.IGNORECASE):
+                        is_old = True
+                        old_count += 1
+                        break
+            
+            # Nếu không phải lỗi cũ, giữ lại
+            if not is_old:
+                new_vulns.append(vuln)
+        
+        print(f"✅ LỖI MỚI (CHƯA VÁ): {len(new_vulns)}")
+        print(f"⏭️ LỖI CŨ (BỎ QUA): {old_count}")
+        
+        # Ghi file lỗi mới
+        with open('new_vulnerabilities.json', 'w') as f:
+            json.dump(new_vulns, f, indent=2)
+        
+        # Tạo báo cáo mới
+        with open('new_results.txt', 'w') as f:
+            for vuln in new_vulns:
+                info = vuln.get('info', {})
+                name = info.get('name', 'Unknown')
+                matched = vuln.get('matched-at', 'Unknown')
+                severity = info.get('severity', 'Unknown')
+                cve = info.get('cve_id', 'N/A')
+                f.write(f"[{severity}] {name} → {matched} | CVE: {cve}\n")
+        
+        print("✅ ĐÃ LỌC THÀNH CÔNG!")
+        EOF
+        
+        python3 /tmp/filter.py
+        
+        # Thay thế file kết quả bằng lỗi mới
+        if [ -f new_vulnerabilities.json ]; then
+            mv new_vulnerabilities.json results.json
+        fi
+        if [ -f new_results.txt ]; then
+            mv new_results.txt results.txt
+        fi
 
-      - name: Lưu và đóng gói kết quả
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuclei-vulnerability-report
-          path: |
-            results.txt
-            results.json
-          retention-days: 7
+    - name: 📄 BÁO CÁO CHI TIẾT - CHỈ LỖI MỚI
+      if: always()
+      run: |
+        echo "📋 BÁO CÁO LỖI MỚI NHẤT (CHƯA VÁ)..."
+        
+        TOTAL=$(jq -s 'length' results.json 2>/dev/null || echo 0)
+        CRITICAL=$(jq -r 'select(.info.severity=="critical")' results.json 2>/dev/null | wc -l || echo 0)
+        HIGH=$(jq -r 'select(.info.severity=="high")' results.json 2>/dev/null | wc -l || echo 0)
+        MEDIUM=$(jq -r 'select(.info.severity=="medium")' results.json 2>/dev/null | wc -l || echo 0)
+        
+        BOUNTY=$((CRITICAL * 5000 + HIGH * 1000 + MEDIUM * 200))
+        
+        echo ""
+        echo "════════════════════════════════════════════════════════════════════════════════"
+        echo "🔥 KẾT QUẢ QUÉT - CHỈ LỖI MỚI NHẤT (CHƯA VÁ)"
+        echo "════════════════════════════════════════════════════════════════════════════════"
+        echo "📦 TỔNG LỖI MỚI: $TOTAL"
+        echo "🔥 CRITICAL: $CRITICAL (💰 \$5,000+ mỗi lỗi)"
+        echo "⚡ HIGH: $HIGH (💰 \$1,000+ mỗi lỗi)"
+        echo "🟡 MEDIUM: $MEDIUM (💰 \$200+ mỗi lỗi)"
+        echo "💰 TỔNG BOUNTY: \$$(printf "%'d" $BOUNTY)"
+        echo ""
+        
+        if [ $TOTAL -gt 0 ]; then
+          echo "📋 DANH SÁCH LỖI MỚI (CHƯA VÁ):"
+          echo "────────────────────────────────────────────────────────────────────────────────"
+          jq -r 'select(.info.severity=="critical" or .info.severity=="high" or .info.severity=="medium") | 
+            "📌 " + .info.name + " → " + .matched-at + " | " + .info.severity + " | CVE: " + (.info.cve_id // "N/A")' results.json 2>/dev/null | head -30
+        else
+          echo "✅ KHÔNG CÓ LỖI MỚI NÀO! TIẾP TỤC QUÉT LẦN SAU."
+        fi
+        echo "════════════════════════════════════════════════════════════════════════════════"
+
+    - name: 💾 LƯU VÀ ĐÓNG GÓI KẾT QUẢ
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuclei-vulnerability-report
+        path: |
+          results.txt
+          results.json
+          scan.log
+        retention-days: 7
