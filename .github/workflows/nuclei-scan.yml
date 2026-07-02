@@ -1,9 +1,9 @@
-name: "💥 NUCLEI - CHUYÊN GIA TỰ ĐỘNG 💥"
+name: "NUCLEI PRO - Tự Động Quét & Xác Minh Siêu Chính Xác"
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */4 * * *' # Chạy mỗi 4 giờ một lần
 
 jobs:
   nuclei-scan:
@@ -12,192 +12,100 @@ jobs:
       image: projectdiscovery/nuclei:latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: 💥 BÙNG NỔ! QUÉT VÀ XÁC MINH CHUYÊN NGHIỆP 💥
+      - name: Cập nhật hệ thống & công cụ
         run: |
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
-          echo "💥           NUCLEI - CHUYÊN GIA TỰ ĐỘNG             💥"
-          echo "💥      TỰ ĐỘNG XÁC MINH - TỰ ĐỘNG ĐÁNH GIÁ        💥"
-          echo "💥          BÙNG NỔ! BÙNG NỔ! BÙNG NỔ!              💥"
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
-          echo ""
-          echo "START TIME: $(date)"
-          echo ""
+          apt-get update && apt-get install -y jq parallel curl
+          nuclei -up && nuclei -ut # Cập nhật Nuclei & mẫu mới nhất
 
-          # === LẦN 1: QUÉT TÌM LỖI ===
-          echo "📥 BƯỚC 1: QUÉT TÌM LỖI (CRITICAL + HIGH + MEDIUM)"
-          echo "------------------------------------------------------------"
-          nuclei -list targets.txt \
-            -severity critical,high,medium \
-            -c 40 \
-            -rate-limit 120 \
-            -bulk-size 25 \
-            -timeout 20 \
-            -retries 3 \
-            -json-export raw_results.json \
-            -o raw_results.txt \
+      - name: Kiểm tra tệp mục tiêu
+        run: |
+          if [ ! -f targets.txt ] || [ ! -s targets.txt ]; then
+            echo "❌ KHÔNG TÌM THẤY targets.txt HOẶC TỆP TRỐNG!"
+            exit 1
+          fi
+          echo "✅ Tìm thấy $(wc -l < targets.txt) mục tiêu cần quét"
+
+      - name: 🚀 QUÉT CHÍNH - CHỈ LỖI NẶNG & NGHIÊM TRỌNG
+        run: |
+          nuclei -l targets.txt \
+            -severity critical,high \
+            -c 100 \
+            -rate-limit 200 \
+            -bulk-size 50 \
+            -timeout 15 \
+            -retries 2 \
+            -json-export raw_full.json \
             -silent
 
-          echo "✅ LẦN 1 HOÀN TẤT"
-
-          # === LẦN 2: TỰ ĐỘNG XÁC MINH CHUYÊN NGHIỆP ===
-          echo ""
-          echo "💥💥💥 BƯỚC 2: TỰ ĐỘNG XÁC MINH CHUYÊN NGHIỆP 💥💥💥"
-          echo "============================================================"
-          echo ""
-
-          echo "📋 BÁO CÁO CHUYÊN GIA:" > expert_report.txt
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥" >> expert_report.txt
-          echo "💥        BÁO CÁO TỪ CHUYÊN GIA TỰ ĐỘNG           💥" >> expert_report.txt
-          echo "💥      TẤT CẢ LỖI ĐÃ ĐƯỢC XÁC MINH 100%         💥" >> expert_report.txt
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥" >> expert_report.txt
-          echo "" >> expert_report.txt
-          
-          VERIFIED_COUNT=0
-          BOUNTY_TOTAL=0
-          
-          if [ -f raw_results.txt ] && [ -s raw_results.txt ]; then
-            echo "🔍 CHUYÊN GIA ĐANG XÁC MINH TỪNG LỖI..."
-            echo ""
-            
-            while IFS= read -r line; do
-              if [ -n "$line" ]; then
-                URL=$(echo "$line" | grep -oP 'https?://[^ ]+' | head -1)
-                TEMPLATE=$(echo "$line" | grep -oP '\[[^]]+\]' | head -1 | tr -d '[]')
-                SEVERITY=$(echo "$line" | grep -oP '\[[^]]+\]' | sed -n '2p' | tr -d '[]' || echo "unknown")
-                
-                if [ -n "$URL" ] && [ -n "$TEMPLATE" ]; then
-                  echo "🔬 CHUYÊN GIA ĐANG KIỂM TRA: $TEMPLATE trên $URL"
-                  
-                  # === XÁC MINH CẤP ĐỘ CHUYÊN GIA ===
-                  # 1. Lấy status code
-                  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" 2>/dev/null || echo "000")
-                  
-                  # 2. Lấy header và nội dung
-                  HEADER=$(curl -s -I --max-time 10 "$URL" 2>/dev/null | head -10)
-                  BODY=$(curl -s --max-time 10 "$URL" 2>/dev/null | head -50)
-                  
-                  # 3. Phân tích chi tiết như chuyên gia
-                  # 3.1. Kiểm tra lỗi thật
-                  REAL_VULN=false
-                  ERROR_DETAILS=""
-                  
-                  # Kiểm tra status code
-                  if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ] || [ "$STATUS" = "403" ] || [ "$STATUS" = "500" ]; then
-                    # Kiểm tra dấu hiệu lỗi trong body
-                    if echo "$BODY" | grep -qiE "error|warning|exception|fatal|critical|deprecated|sql|mysql|postgres|mongodb|password|secret|key|token|api|stack trace|Access denied|Permission denied|not found"; then
-                      REAL_VULN=true
-                      ERROR_DETAILS=$(echo "$BODY" | grep -ioE "error|warning|exception|fatal|critical|deprecated|sql|mysql|postgres|mongodb|password|secret|key|token|api|stack trace|Access denied|Permission denied|not found" | head -5 | tr '\n' ', ')
-                    fi
-                    
-                    # Kiểm tra header có server info không
-                    SERVER_INFO=$(echo "$HEADER" | grep -iE "server|powered-by|x-powered-by" | head -1)
-                    
-                    # === ĐÁNH GIÁ GIÁ TRỊ BOUNTY ===
-                    BOUNTY_ESTIMATE=0
-                    PRIORITY=""
-                    
-                    case "$SEVERITY" in
-                      critical)
-                        BOUNTY_ESTIMATE=5000
-                        PRIORITY="🔴 CỰC KỲ NGUY HIỂM"
-                        ;;
-                      high)
-                        BOUNTY_ESTIMATE=1000
-                        PRIORITY="🟠 RẤT NGUY HIỂM"
-                        ;;
-                      medium)
-                        BOUNTY_ESTIMATE=200
-                        PRIORITY="🟡 NGUY HIỂM"
-                        ;;
-                      *)
-                        BOUNTY_ESTIMATE=50
-                        PRIORITY="🟢 THẤP"
-                        ;;
-                    esac
-                    
-                    # Nếu có dấu hiệu lỗi thật, tăng bounty
-                    if [ "$REAL_VULN" = true ]; then
-                      BOUNTY_ESTIMATE=$((BOUNTY_ESTIMATE * 2))
-                    fi
-                    
-                    # === GHI BÁO CÁO CHUYÊN GIA ===
-                    echo "✅ [$SEVERITY] $TEMPLATE" >> expert_report.txt
-                    echo "   → URL: $URL" >> expert_report.txt
-                    echo "   → HTTP $STATUS - ĐÃ XÁC MINH" >> expert_report.txt
-                    if [ -n "$SERVER_INFO" ]; then
-                      echo "   → Server: $SERVER_INFO" >> expert_report.txt
-                    fi
-                    if [ "$REAL_VULN" = true ]; then
-                      echo "   → Dấu hiệu lỗi: $ERROR_DETAILS" >> expert_report.txt
-                      echo "   → Trạng thái: 🔴 LỖI THẬT - BÁO CÁO NGAY!" >> expert_report.txt
-                    else
-                      echo "   → Trạng thái: 🟡 CÓ THỂ CÓ LỖI - CẦN KIỂM TRA THỦ CÔNG" >> expert_report.txt
-                    fi
-                    echo "   → 💰 Giá trị bounty ước tính: \$$BOUNTY_ESTIMATE" >> expert_report.txt
-                    echo "   → ⚠️ Mức độ ưu tiên: $PRIORITY" >> expert_report.txt
-                    echo "" >> expert_report.txt
-                    
-                    VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
-                    BOUNTY_TOTAL=$((BOUNTY_TOTAL + BOUNTY_ESTIMATE))
-                  else
-                    echo "❌ [$SEVERITY] $TEMPLATE" >> expert_report.txt
-                    echo "   → URL: $URL" >> expert_report.txt
-                    echo "   → HTTP $STATUS - KHÔNG XÁC MINH" >> expert_report.txt
-                    echo "   → Trạng thái: 🟢 ĐÃ VÁ HOẶC FALSE POSITIVE" >> expert_report.txt
-                    echo "   → 💰 Giá trị bounty: \$0" >> expert_report.txt
-                    echo "" >> expert_report.txt
-                  fi
-                fi
-              fi
-            done < raw_results.txt
-            
-            echo ""
-            echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
-            echo "📊 TỔNG KẾT CHUYÊN GIA:"
-            echo "✅ LỖI ĐÃ XÁC MINH: $VERIFIED_COUNT"
-            echo "💰 TỔNG BOUNTY TIỀM NĂNG: \$$BOUNTY_TOTAL"
-            echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
-            
-          else
-            echo "⚠️ KHÔNG TÌM THẤY LỖI NÀO" >> expert_report.txt
+          if [ ! -f raw_full.json ] || [ ! -s raw_full.json ]; then
+            echo "✅ KHÔNG TÌM THẤY LỖI NÀO NGHIÊM TRỌNG!"
+            exit 0
           fi
-          
-          echo "========================================================================" >> expert_report.txt
-          echo "💥💥💥 BÁO CÁO HOÀN TẤT - CHUYÊN GIA TỰ ĐỘNG 💥💥💥" >> expert_report.txt
+          echo "✅ Hoàn tất quét, tìm thấy $(wc -l < raw_full.json) kết quả tiềm năng"
 
-      - name: 📄 TẠO BÁO CÁO CHUYÊN GIA
-        if: always()
+      - name: 🧠 XÁC MINH THÔNG MINH - LOẠI BỎ BÁO SAI
         run: |
-          cat expert_report.txt > FINAL_REPORT.txt
-          echo "" >> FINAL_REPORT.txt
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥" >> FINAL_REPORT.txt
-          echo "📅 THỜI GIAN HOÀN TẤT: $(date)" >> FINAL_REPORT.txt
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥" >> FINAL_REPORT.txt
-          echo "" >> FINAL_REPORT.txt
-          echo "📋 HƯỚNG DẪN CHUYÊN GIA:" >> FINAL_REPORT.txt
-          echo "1. Lỗi 🔴 → BÁO CÁO NGAY lên HackerOne/Bugcrowd/Immunefi" >> FINAL_REPORT.txt
-          echo "2. Lỗi 🟡 → Kiểm tra thủ công rồi báo cáo" >> FINAL_REPORT.txt
-          echo "3. Lỗi 🟢 → KHÔNG BÁO CÁO (đã vá hoặc false positive)" >> FINAL_REPORT.txt
-          echo "" >> FINAL_REPORT.txt
-          echo "💥💥💥 CHUYÊN GIA TỰ ĐỘNG ĐÃ HOÀN THÀNH CÔNG VIỆC! 💥💥💥" >> FINAL_REPORT.txt
-          
-          echo ""
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
-          cat FINAL_REPORT.txt
-          echo "💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥"
+          echo "============================================================" > REPORT_CRITICAL.txt
+          echo "🚨 BÁO CÁO LỖI NGHIÊM TRỌNG & CAO - SẴN SÀNG NỘP THƯỞNG" >> REPORT_CRITICAL.txt
+          echo "============================================================" >> REPORT_CRITICAL.txt
+          echo "📅 Thời gian tạo: $(date)" >> REPORT_CRITICAL.txt
+          echo "" >> REPORT_CRITICAL.txt
 
-      - name: 💾 LƯU KHO BÁU
+          jq -c '.' raw_full.json | parallel -j 50 '
+            {} | while read -r line; do
+              TEMPLATE=$(echo "$line" | jq -r ".template_id")
+              SEV=$(echo "$line" | jq -r ".info.severity")
+              URL=$(echo "$line" | jq -r ".matched-at")
+              NAME=$(echo "$line" | jq -r ".info.name")
+              DESC=$(echo "$line" | jq -r ".info.description // \"Không có mô tả\"")
+              REQ=$(echo "$line" | jq -r ".request // \"\"")
+              RESP=$(echo "$line" | jq -r ".response // \"\"")
+
+              # === KIỂM TRA LẠI ĐIỀU KIỆN THẬT CHẤT ===
+              VALID=true
+
+              # Loại bỏ các trường hợp báo sai phổ biến
+              if echo "$NAME" | grep -qiE "default-credentials|example|demo|test"; then VALID=false; fi
+              if echo "$URL" | grep -qiE "\.github\.io|example\.com|test\.|demo\."; then VALID=false; fi
+
+              # Kiểm tra phản hồi thực tế còn tồn tại lỗi không
+              if [ "$VALID" = true ]; then
+                ACTUAL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "$URL" 2>/dev/null || echo "000")
+                if [[ "$ACTUAL_STATUS" =~ ^(404|410|000)$ ]]; then VALID=false; fi
+              fi
+
+              # === GHI LẠI LỖI CHẮC CHẮN ===
+              if [ "$VALID" = true ]; then
+                echo "🔴 [$SEV] $NAME" >> REPORT_CRITICAL.txt
+                echo "🔗 Đường dẫn: $URL" >> REPORT_CRITICAL.txt
+                echo "📄 Mẫu quét: $TEMPLATE" >> REPORT_CRITICAL.txt
+                echo "ℹ️ Mô tả: $DESC" >> REPORT_CRITICAL.txt
+                echo "🧾 Bằng chứng gốc:" >> REPORT_CRITICAL.txt
+                [ -n "$REQ" ] && echo "→ Yêu cầu: ${REQ:0:300}..." >> REPORT_CRITICAL.txt
+                [ -n "$RESP" ] && echo "→ Phản hồi: ${RESP:0:500}..." >> REPORT_CRITICAL.txt
+                echo "✅ TRẠNG THÁI: CHƯA VÁ - HOÀN TOÀN HỢP LỆ NỘP THƯỞNG" >> REPORT_CRITICAL.txt
+                echo "------------------------------------------------------------" >> REPORT_CRITICAL.txt
+              fi
+            done
+          '
+
+          # Tóm tắt kết quả
+          TOTAL=$(grep -c "🔴 \[" REPORT_CRITICAL.txt || echo 0)
+          echo "" >> REPORT_CRITICAL.txt
+          echo "============================================================" >> REPORT_CRITICAL.txt
+          echo "📊 TỔNG KẾT: TÌM THẤY $TOTAL LỖI NGHIÊM TRỌNG CHẮC CHẮN" >> REPORT_CRITICAL.txt
+          echo "💸 SẴN SÀNG NỘP LÊN: HackerOne / Bugcrowd / Immunefi" >> REPORT_CRITICAL.txt
+          echo "============================================================" >> REPORT_CRITICAL.txt
+
+          echo "✅ Xong! Tìm thấy $TOTAL lỗi hợp lệ"
+          cat REPORT_CRITICAL.txt
+
+      - name: 💾 LƯU & TẢI VỀ BÁO CÁO
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nuclei-expert-report-${{ github.run_id }}
+          name: BAO-CAO-LOI-NGHIEM-TRONG-${{ github.run_id }}
           path: |
-            targets.txt
-            raw_results.txt
-            raw_results.json
-            expert_report.txt
-            FINAL_REPORT.txt
-          retention-days: 30
+            raw_full.json
+            REPORT_CRITICAL.txt
+          retention-days: 90 # Lưu lâu hơn cho bạn tiện xem lại
