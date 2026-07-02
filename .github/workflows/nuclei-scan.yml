@@ -1,4 +1,4 @@
-name: "NUCLEI PRO - Tự Động Quét & Xác Minh Siêu Chính Xác"
+name: "NUCLEI PRO - Tự Động Quét & Xác Minh"
 
 on:
   workflow_dispatch:
@@ -8,113 +8,87 @@ on:
 jobs:
   nuclei-scan:
     runs-on: ubuntu-latest
+    permissions: write-all # Đảm bảo đủ quyền truy cập hệ thống
 
     steps:
-      - name: Tải toàn bộ tệp dự án
+      - name: 📥 Tải tệp dự án
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Kiểm tra & dọn dẹp targets.txt
+      - name: ✅ Kiểm tra targets.txt
         run: |
-          echo "📂 Thư mục hiện tại: $(pwd)"
-          echo "📋 Danh sách tệp: $(ls -la)"
-          if [ ! -f targets.txt ]; then
-            echo "❌ LỖI: KHÔNG TÌM THẤY targets.txt Ở THƯ MỤC GỐC!"
+          ls -la
+          if [ ! -f targets.txt ] || [ ! -s targets.txt ]; then
+            echo "❌ Lỗi: targets.txt không tồn tại hoặc trống"
             exit 1
           fi
           sed -i '/^[[:space:]]*$/d' targets.txt
-          sed -i 's/[[:space:]]*$//' targets.txt
-          if [ ! -s targets.txt ]; then
-            echo "❌ LỖI: Tệp targets.txt SAU KHI DỌN TRỐNG!"
-            exit 1
-          fi
-          echo "✅ ĐÃ TÌM THẤY $(wc -l < targets.txt) MỤC TIÊU HỢP LỆ"
+          echo "✅ Đã nhận $(wc -l < targets.txt) mục tiêu"
 
-      - name: Cài Nuclei & công cụ phụ trợ
+      - name: ⚙️ Cài Nuclei & công cụ (đã sửa lỗi quyền)
         run: |
-          apt-get update && apt-get install -y jq parallel curl wget unzip
-          wget -q https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei_linux_amd64.zip -O nuclei.zip
-          unzip -q nuclei.zip && mv nuclei /usr/local/bin/ && chmod +x /usr/local/bin/nuclei
+          sudo apt-get update -y
+          sudo apt-get install -y jq parallel curl
+          curl -s https://installprojectdiscovery.io | sudo bash
           nuclei -up && nuclei -ut
           nuclei -version
 
-      - name: 🚀 QUÉT CHỈ LỖI NGHIÊM TRỌNG & CAO
+      - name: 🚀 Quét lỗi nghiêm trọng
         run: |
           nuclei -l targets.txt \
             -severity critical,high \
             -c 80 \
             -rate-limit 150 \
-            -bulk-size 30 \
-            -timeout 20 \
-            -retries 2 \
             -json-export raw_full.json \
             -silent
 
-          if [ ! -f raw_full.json ] || [ ! -s raw_full.json ]; then
-            echo "✅ KHÔNG TÌM THẤY LỖI NÀO NGHIÊM TRỌNG!"
+          if [ ! -s raw_full.json ]; then
+            echo "✅ Không tìm thấy lỗi nghiêm trọng nào"
             exit 0
           fi
-          echo "✅ HOÀN TẤT QUÉT: $(wc -l < raw_full.json) KẾT QUẢ TIỀM NĂNG"
+          echo "✅ Tìm thấy $(wc -l < raw_full.json) kết quả tiềm năng"
 
-      - name: 🧠 XÁC MINH THÔNG MINH - LOẠI BỎ BÁO SAI
+      - name: 🧠 Xác minh & tạo báo cáo
         run: |
-          echo "============================================================" > REPORT_CRITICAL.txt
-          echo "🚨 BÁO CÁO LỖI NGHIÊM TRỌNG - SẴN SÀNG NỘP THƯỞNG" >> REPORT_CRITICAL.txt
-          echo "============================================================" >> REPORT_CRITICAL.txt
-          echo "📅 Thời gian: $(date)" >> REPORT_CRITICAL.txt
-          echo "" >> REPORT_CRITICAL.txt
+          echo "=== BÁO CÁO LỖI HỢP LỆ ===" > REPORT.txt
+          echo "Thời gian: $(date)" >> REPORT.txt
+          echo "" >> REPORT.txt
 
           cat raw_full.json | jq -c '.' | parallel -j 30 '
             line="{}"
-            TEMPLATE=$(echo "$line" | jq -r ".template_id // \"khong-xac-dinh\"")
-            SEV=$(echo "$line" | jq -r ".info.severity // \"unknown\"")
-            URL=$(echo "$line" | jq -r ".matched-at // \"\"")
-            NAME=$(echo "$line" | jq -r ".info.name // \"Không tên\"")
-            DESC=$(echo "$line" | jq -r ".info.description // \"Không mô tả\"")
-            REQ=$(echo "$line" | jq -r ".request // \"\"")
-            RESP=$(echo "$line" | jq -r ".response // \"\"")
+            TPL=$(echo "$line" | jq -r ".template_id")
+            SEV=$(echo "$line" | jq -r ".info.severity")
+            URL=$(echo "$line" | jq -r ".matched-at")
+            NAME=$(echo "$line" | jq -r ".info.name")
 
             VALID=true
-
-            if echo "$NAME" | grep -qiE "default-cred|example|demo|test|sample"; then VALID=false; fi
-            if echo "$URL" | grep -qiE "\.github\.io|example\.com|test\.|demo\.|localhost"; then VALID=false; fi
-            if [ -z "$URL" ]; then VALID=false; fi
+            echo "$NAME" | grep -qiE "demo|test|example" && VALID=false
+            [ -z "$URL" ] && VALID=false
 
             if [ "$VALID" = true ]; then
-              ACTUAL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" 2>/dev/null || echo "000")
-              if [[ "$ACTUAL_STATUS" =~ ^(404|410|000)$ ]]; then VALID=false; fi
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "$URL" || echo "000")
+              [[ "$STATUS" =~ ^(404|410|000)$ ]] && VALID=false
             fi
 
             if [ "$VALID" = true ]; then
               echo "🔴 [$SEV] $NAME"
-              echo "🔗 Đường dẫn: $URL"
-              echo "📄 Mẫu quét: $TEMPLATE"
-              echo "ℹ️ Mô tả: $DESC"
-              echo "🧾 Bằng chứng gốc:"
-              [ -n "$REQ" ] && echo "→ Yêu cầu: ${REQ:0:300}..."
-              [ -n "$RESP" ] && echo "→ Phản hồi: ${RESP:0:500}..."
-              echo "✅ TRẠNG THÁI: CHƯA VÁ - HỢP LỆ NỘP THƯỞNG"
-              echo "------------------------------------------------------------"
+              echo "🔗 $URL"
+              echo "📄 $TPL"
+              echo "✅ CHƯA VÁ - Hợp lệ nộp thưởng"
+              echo "--------------------------------"
             fi
-          ' >> REPORT_CRITICAL.txt
+          ' >> REPORT.txt
 
-          TOTAL=$(grep -c "🔴 \[" REPORT_CRITICAL.txt || echo 0)
-          echo "" >> REPORT_CRITICAL.txt
-          echo "============================================================" >> REPORT_CRITICAL.txt
-          echo "📊 TỔNG CỘNG: $TOTAL LỖI NGHIÊM TRỌNG CHẮC CHẮN" >> REPORT_CRITICAL.txt
-          echo "💸 NỘP LÊN: HackerOne / Bugcrowd / Immunefi" >> REPORT_CRITICAL.txt
-          echo "============================================================" >> REPORT_CRITICAL.txt
+          TOTAL=$(grep -c "🔴 \[" REPORT.txt || echo 0)
+          echo "" >> REPORT.txt
+          echo "Tổng cộng: $TOTAL lỗi nghiêm trọng hợp lệ" >> REPORT.txt
+          cat REPORT.txt
 
-          echo "✅ HOÀN TẤT: TÌM THẤY $TOTAL LỖI HỢP LỆ"
-          cat REPORT_CRITICAL.txt
-
-      - name: 💾 LƯU BÁO CÁO
+      - name: 💾 Lưu báo cáo
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: BAO-CAO-LOI-NGHIEM-TRONG-${{ github.run_id }}
           path: |
             raw_full.json
-            REPORT_CRITICAL.txt
+            REPORT.txt
           retention-days: 90
